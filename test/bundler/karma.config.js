@@ -20,21 +20,27 @@ module.exports = function (config) {
       'karma-chrome-launcher',
       'karma-jasmine',
       'karma-polyfill',
+      'karma-typescript',
     ],
     browsers: Object.keys(localLaunchers),
 
     singleRun: true, // set this to false to leave the browser open
 
-    frameworks: ['jasmine', 'polyfill'],
+    frameworks: ['jasmine',
+      'karma-typescript', 'polyfill'],
 
     polyfill: ['Promise'],
-
+    preprocessors: {
+      '**/*.ts': 'karma-typescript',
+    },
     urlRoot: '/__karma__/',
     files: [
       // 'parcel-bundle-test/dist/**',
       'vite-bundle-test/dist/index.html',
       // 'parcel-bundle-test/**/*.spec.js', // tells karma these are tests we need to serve & run
-      'vite-bundle-test/vite-bundle.spec.js', // tells karma these are tests we need to serve & run
+      'vite-bundle-test/vite-bundle.spec.ts', // tells karma these are tests we need to serve & run
+      'util.ts',
+
       // {
       //   pattern: path.join('test-output', 'vite', '/**/*'),
       //   watched: false,
