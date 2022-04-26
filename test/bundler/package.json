@@ -3,9 +3,9 @@
   "scripts": {
     "clean": "",
     "build.bundlers": "npm run build.component-lib && npm run build.parcel && npm run build.vite",
-    "build.component-lib": "cd component-library && npm ci && npm run build && cd ../..",
-    "build.parcel": "cd parcel-bundle-test && npm run build && cd ../..",
-    "build.vite": "cd vite-bundle-test && npm run build && cd ../..",
+    "build.component-lib": "cd component-library && npm ci && npm run build && cd ..",
+    "build.parcel": "cd parcel-bundle-test && npm ci && npm run build && cd ..",
+    "build.vite": "cd vite-bundle-test && npm ci && npm run build && cd ..",
     "karma": "karma start karma.config.js"
   },
   "devDependencies": {

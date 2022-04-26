@@ -18,8 +18,5 @@
     "build": "node ../../../bin/stencil build",
     "start": "node ../../../bin/stencil build --dev --watch --serve"
   },
-  "devDependencies": {
-    "@types/node": "^14.18.15"
-  },
   "license": "MIT"
 }
