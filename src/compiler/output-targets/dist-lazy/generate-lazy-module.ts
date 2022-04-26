@@ -49,7 +49,7 @@ export const generateLazyModules = async (
     ),
   ]);
   if (!isBrowserBuild) {
-    // addStaticImports(results, bundleModules);
+    addStaticImports(results, bundleModules);
   }
 
   await Promise.all(
@@ -103,7 +103,7 @@ export const generateLazyModules = async (
 };
 
 // @ts-ignore
-const _addStaticImports = (results: d.RollupResult[], bundleModules: d.BundleModule[]) => {
+const addStaticImports = (results: d.RollupResult[], bundleModules: d.BundleModule[]) => {
   results
     .filter(
       (res: d.RollupChunkResult) =>
@@ -133,7 +133,7 @@ const _addStaticImports = (results: d.RollupResult[], bundleModules: d.BundleMod
         return caseStatement.replace(/\{COMPONENT_ENTRY\}/g, mod.output.bundleId);
       });
       index.code = index.code.replace(
-        '// staticImportSwitch',
+        '/*!__STENCIL_STATIC_IMPORT_SWITCH__*/',
         `
     if (!hmrVersionId || !BUILD.hotModuleReplacement) {
       const processMod = importedModule => {

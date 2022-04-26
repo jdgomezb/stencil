@@ -25,7 +25,7 @@ export const loadModule = (
     console.log(`Found module for bundleid`)
     return module[exportName];
   }
-  // staticImportSwitch
+  /*!__STENCIL_STATIC_IMPORT_SWITCH__*/
   console.log(`Importing './${bundleId}.entry.js${BUILD.hotModuleReplacement && hmrVersionId ? '?s-hmr=' + hmrVersionId : ''}'`)
   return import(
     /* webpackInclude: /\.entry\.js$/ */
