@@ -17,9 +17,9 @@
     "jsxFactory": "h",
 //    TODO: Revisist
     "paths": {
-      "@stencil/core": ["../../../../internal"],
-      "@stencil/core/internal": ["../../../../internal"],
-      "@stencil/core/testing": ["../../../../testing"]
+      "@stencil/core": ["../../../internal"],
+      "@stencil/core/internal": ["../../../internal"],
+      "@stencil/core/testing": ["../../../testing"]
     }
   },
   "include": [
