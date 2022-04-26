@@ -12,6 +12,8 @@ export const loadModule = (
   // loadModuleImport
   const exportName = cmpMeta.$tagName$.replace(/-/g, '_');
   const bundleId = cmpMeta.$lazyBundleId$;
+  console.log(`the exportName is '${exportName}'`)
+  console.log(`the bundleId is '${bundleId}'`)
   if (BUILD.isDev && typeof bundleId !== 'string') {
     consoleDevError(
       `Trying to lazily load component <${cmpMeta.$tagName$}> with style mode "${hostRef.$modeName$}", but it does not exist.`
@@ -20,8 +22,11 @@ export const loadModule = (
   }
   const module = !BUILD.hotModuleReplacement ? cmpModules.get(bundleId) : false;
   if (module) {
+    console.log(`Found module for bundleid`)
     return module[exportName];
   }
+  // staticImportSwitch
+  console.log(`Importing './${bundleId}.entry.js${BUILD.hotModuleReplacement && hmrVersionId ? '?s-hmr=' + hmrVersionId : ''}'`)
   return import(
     /* webpackInclude: /\.entry\.js$/ */
     /* webpackExclude: /\.system\.entry\.js$/ */
