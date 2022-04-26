@@ -35,10 +35,10 @@ module.exports = function (config) {
     },
     urlRoot: '/__karma__/',
     files: [
-      // 'parcel-bundle-test/dist/**',
-      'vite-bundle-test/dist/index.html',
-      // 'parcel-bundle-test/**/*.spec.js', // tells karma these are tests we need to serve & run
-      'vite-bundle-test/vite-bundle.spec.ts', // tells karma these are tests we need to serve & run
+      'parcel-bundle-test/dist/**',
+      'parcel-bundle-test/parcel-bundle.spec.ts', // tells karma these are tests we need to serve & run
+      // 'vite-bundle-test/dist/**',
+      // 'vite-bundle-test/vite-bundle.spec.ts', // tells karma these are tests we need to serve & run
       'util.ts',
 
       // {
@@ -52,7 +52,7 @@ module.exports = function (config) {
     ],
 
     // proxies: {
-    //   '/': `/base/${WWW_OUT_DIR}/`,
+    //   '/': `/base/`
     // },
 
     colors: true,

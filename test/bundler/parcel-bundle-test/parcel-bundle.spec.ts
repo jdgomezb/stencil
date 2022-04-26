@@ -1,11 +1,11 @@
 import { setupDomTests } from '../util';
 
-describe('vite-bundle', () => {
+describe('parcel-bundle', () => {
   const { setupDom, tearDownDom } = setupDomTests(document);
   let app: HTMLElement;
 
   beforeEach(async () => {
-    app = await setupDom('/vite-bundle-test/dist/index.html');
+    app = await setupDom('/parcel-bundle-test/dist/index.html');
   });
   afterEach(tearDownDom);
 
