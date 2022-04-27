@@ -15,6 +15,7 @@
     "loader/"
   ],
   "scripts": {
+    "clean": "rm -rf dist loader www",
     "build": "node ../../../bin/stencil build",
     "start": "node ../../../bin/stencil build --dev --watch --serve"
   },
