@@ -4,9 +4,9 @@
   "version": "1.0.0",
   "description": "test package to verify parcel can be used with stencil's lazy loaded bundle",
   "scripts": {
-    "clean": "rm -rf dist",
+    "clean": "rm -rf .parcel-cache dist",
     "start": "parcel src/index.html",
-    "build": "parcel build src/index.html --dist-dir dist/assets && mv dist/assets/index.html dist/",
+    "build": "parcel build src/index.html",
     "serve": "npm run build && http-server ./dist -c-1"
   },
   "license": "MIT",
