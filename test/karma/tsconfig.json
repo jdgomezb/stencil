@@ -31,9 +31,6 @@
     }
   },
   "include": [
-//    "test-bundler/**/*.ts",
-//    "test-bundler/**/*.tsx",
-//    "test-bundler/**/*.js",
     "test-app/components.d.ts",
     "test-app/**/*.spec.ts",
     "test-app/**/*.tsx",

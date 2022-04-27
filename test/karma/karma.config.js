@@ -79,7 +79,7 @@ module.exports = function (config) {
     ],
     browsers: browserStack ? Object.keys(browserStackLaunchers) : Object.keys(localLaunchers),
 
-    singleRun: false, // set this to false to leave the browser open
+    singleRun: true, // set this to false to leave the browser open
 
     frameworks: ['jasmine', 'karma-typescript', 'polyfill'],
 
@@ -99,20 +99,11 @@ module.exports = function (config) {
     urlRoot: '/__karma__/',
     files: [
       // 'test-app/prerender-test/karma.spec.ts',
-      // 'test-bundler/**/*.spec.ts', // tells karma these are tests we need to serve & run
       'test-app/**/*.spec.ts', // tells karma these are tests we need to serve & run
       'test-app/util.ts', // used by 'www' output target tests to load components
       'test-app/assets/angular.min.js', // used by a 'www' output target test
       {
         pattern: path.join(WWW_OUT_DIR, '/**/*'),
-        watched: false,
-        included: false,
-        served: true,
-        nocache: true,
-        type: 'module',
-      },
-      {
-        pattern: path.join('test-output', 'vite', '/**/*'),
         watched: false,
         included: false,
         served: true,
@@ -127,7 +118,7 @@ module.exports = function (config) {
 
     colors: true,
 
-    logLevel: config.LOG_DEBUG,
+    logLevel: config.LOG_INFO,
 
     reporters: ['progress'].concat(browserStack ? ['BrowserStack'] : []),
 
