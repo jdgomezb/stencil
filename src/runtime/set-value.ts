@@ -5,7 +5,10 @@ import { HOST_FLAGS } from '@utils';
 import { parsePropertyValue } from './parse-property-value';
 import { scheduleUpdate } from './update-component';
 
-export const getValue = (ref: d.RuntimeRef, propName: string) => getHostRef(ref).$instanceValues$.get(propName);
+export const getValue = (ref: d.RuntimeRef, propName: string) => {
+  console.log(`Ref ${JSON.stringify(ref, null, 4)} and prop ${propName}`);
+  return getHostRef(ref).$instanceValues$.get(propName);
+};
 
 export const setValue = (ref: d.RuntimeRef, propName: string, newVal: any, cmpMeta: d.ComponentRuntimeMeta) => {
   // check our new property value against our internal value

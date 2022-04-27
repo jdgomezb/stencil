@@ -3,11 +3,17 @@ import { addHostEventListeners } from '@runtime';
 import { BUILD } from '@app-data';
 
 const hostRefs: WeakMap<d.RuntimeRef, d.HostRef> = /*@__PURE__*/ new WeakMap();
+console.log(`entering the matrix`);
+export const getHostRef = (ref: d.RuntimeRef) => {
+  console.log(`getting runtimed ref for ${JSON.stringify(ref, null, 4)}`);
+  console.log(`hostRefs def? ${hostRefs == null}`);
+  return hostRefs.get(ref);
+};
 
-export const getHostRef = (ref: d.RuntimeRef) => hostRefs.get(ref);
-
-export const registerInstance = (lazyInstance: any, hostRef: d.HostRef) =>
-  hostRefs.set((hostRef.$lazyInstance$ = lazyInstance), hostRef);
+export const registerInstance = (lazyInstance: any, hostRef: d.HostRef) => {
+  console.log(`setting for ${JSON.stringify(lazyInstance, null, 4)}, ${JSON.stringify(hostRef, null, 4)}`);
+  return hostRefs.set((hostRef.$lazyInstance$ = lazyInstance), hostRef);
+};
 
 export const registerHost = (elm: d.HostElement, cmpMeta: d.ComponentRuntimeMeta) => {
   const hostRef: d.HostRef = {

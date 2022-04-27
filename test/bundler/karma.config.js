@@ -30,19 +30,18 @@ module.exports = function (config) {
     urlRoot: '/__karma__/',
     files: [
       // pattern: 'parcel-bundle-test/dist/*.{html,js}',
-      //   'parcel-bundle-test/dist/index.html',
-      // {
-      //     pattern: 'parcel-bundle-test/dist/*.{html,js}',
-      //     served: true,
-      //     nocache: true,
-      //     type:'module'
-      //   },
-      //   'parcel-bundle-test/parcel-bundle.spec.ts', // tells karma these are tests we need to serve & run
+      { pattern: 'parcel-bundle-test/dist/index.html', nocache: true, included: false },
+      {
+        pattern: 'parcel-bundle-test/dist/*.{html,js}',
+        included: false,
+        nocache: true,
+        type: 'module',
+      },
+      'parcel-bundle-test/parcel-bundle.spec.ts', // tells karma these are tests we need to serve & run
       { pattern: 'vite-bundle-test/dist/index.html', nocache: true, included: false },
       {
         pattern: 'vite-bundle-test/dist/**/*.js',
         included: false,
-
         nocache: true,
         type: 'module',
       },
@@ -64,10 +63,9 @@ module.exports = function (config) {
     },
 
     // http://localhost:9876/__karma__/base/vite-bundle-test/dist/assets/index.dbcbef01.js
-    //TODO - this is for vite only, and still doesn't pass
     proxies: {
       '/assets/': `/base/vite-bundle-test/dist/assets/`,
-      // "/assets/": "/base/vite-bundle-test/dist/assets/**"
+      "/base": "/base/parcel-bundle-test/dist/assets/**"
     },
 
     colors: true,

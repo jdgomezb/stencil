@@ -6,7 +6,7 @@
   "scripts": {
     "clean": "rm -rf dist",
     "start": "parcel src/index.html",
-    "build": "parcel build src/index.html",
+    "build": "parcel build src/index.html --dist-dir dist/assets && mv dist/assets/index.html dist/",
     "serve": "npm run build && http-server ./dist -c-1"
   },
   "license": "MIT",
