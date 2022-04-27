@@ -1,5 +1,5 @@
 process.env.CHROME_BIN = require('puppeteer').executablePath();
-const path = require('path');
+
 const localLaunchers = {
   ChromeHeadless: {
     base: 'ChromeHeadless',
@@ -24,7 +24,7 @@ module.exports = function (config) {
     ],
     browsers: Object.keys(localLaunchers),
 
-    singleRun: true, // set this to false to leave the browser open
+    singleRun: false, // set this to false to leave the browser open
 
     frameworks: ['jasmine',
       'karma-typescript', 'polyfill'],
@@ -35,10 +35,25 @@ module.exports = function (config) {
     },
     urlRoot: '/__karma__/',
     files: [
-      'parcel-bundle-test/dist/**',
-      'parcel-bundle-test/parcel-bundle.spec.ts', // tells karma these are tests we need to serve & run
-      // 'vite-bundle-test/dist/**',
-      // 'vite-bundle-test/vite-bundle.spec.ts', // tells karma these are tests we need to serve & run
+      // pattern: 'parcel-bundle-test/dist/*.{html,js}',
+    //   'parcel-bundle-test/dist/index.html',
+    // {
+    //     pattern: 'parcel-bundle-test/dist/*.{html,js}',
+    //     served: true,
+    //     nocache: true,
+    //     type:'module'
+    //   },
+    //   'parcel-bundle-test/parcel-bundle.spec.ts', // tells karma these are tests we need to serve & run
+      {pattern: 'vite-bundle-test/dist/index.html',
+        nocache: true,
+      included: false},
+      {
+        pattern: 'vite-bundle-test/dist/**/*.js',
+          included: false,
+          nocache: true,
+          type: 'module',
+      },
+      'vite-bundle-test/vite-bundle.spec.ts', // tells karma these are tests we need to serve & run
       'util.ts',
 
       // {
@@ -51,9 +66,14 @@ module.exports = function (config) {
       // },
     ],
 
-    // proxies: {
-    //   '/': `/base/`
-    // },
+    karmaTypescriptConfig: {
+      exclude: ["./component-library"]
+    },
+
+    //TODO - this is for vite only, and still doesn't pass
+    proxies: {
+      // '/assets/': `/base/vite-bundle-test/dist/assets/`
+    },
 
     colors: true,
 

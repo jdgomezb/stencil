@@ -6,7 +6,8 @@
     "build.component-lib": "cd component-library && npm ci && npm run build && cd ..",
     "build.parcel": "cd parcel-bundle-test && npm ci && npm run build && cd ..",
     "build.vite": "cd vite-bundle-test && npm ci && npm run build && cd ..",
-    "karma": "karma start karma.config.js"
+    "karma": "karma start karma.config.js",
+    "start": "npm run build && npm run karma"
   },
   "devDependencies": {
     "karma": "^6.3.17",
