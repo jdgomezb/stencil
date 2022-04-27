@@ -65,7 +65,7 @@ module.exports = function (config) {
     // http://localhost:9876/__karma__/base/vite-bundle-test/dist/assets/index.dbcbef01.js
     proxies: {
       '/assets/': `/base/vite-bundle-test/dist/assets/`,
-      "/base": "/base/parcel-bundle-test/dist/assets/**"
+      '/p-assets/': `/base/parcel-bundle-test/dist/p-assets/`,
     },
 
     colors: true,
