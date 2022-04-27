@@ -32,7 +32,7 @@ module.exports = function (config) {
       // pattern: 'parcel-bundle-test/dist/*.{html,js}',
       { pattern: 'parcel-bundle-test/dist/index.html', nocache: true, included: false },
       {
-        pattern: 'parcel-bundle-test/dist/*.{html,js}',
+        pattern: 'parcel-bundle-test/dist/**/*.js',
         included: false,
         nocache: true,
         type: 'module',
