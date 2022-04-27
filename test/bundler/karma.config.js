@@ -50,6 +50,7 @@ module.exports = function (config) {
       {
         pattern: 'vite-bundle-test/dist/**/*.js',
           included: false,
+
           nocache: true,
           type: 'module',
       },
@@ -70,9 +71,11 @@ module.exports = function (config) {
       exclude: ["./component-library"]
     },
 
+    // http://localhost:9876/__karma__/base/vite-bundle-test/dist/assets/index.dbcbef01.js
     //TODO - this is for vite only, and still doesn't pass
     proxies: {
-      // '/assets/': `/base/vite-bundle-test/dist/assets/`
+      '/assets/': `/base/vite-bundle-test/dist/assets/`
+      // "/assets/": "/base/vite-bundle-test/dist/assets/**"
     },
 
     colors: true,

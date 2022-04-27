@@ -9,10 +9,11 @@ describe('vite-bundle', () => {
   });
   afterEach(tearDownDom);
 
-  it('should load content from dynamic import', async () => {
-    const helloComponent = app.querySelector('my-component');
-    console.log(app)
-    console.log(helloComponent)
-    expect(helloComponent.textContent.trim()).toBe("Hello, World! I'm Stencil 'Don't call me a framework' JS");
+  it('should load content from dynamic import', () => {
+    const cmpShadowRoot = app.querySelector('my-component')?.shadowRoot;
+    if (!cmpShadowRoot) {
+      fail(`unable to find shadow root on component 'my-component'`);
+    }
+    expect(cmpShadowRoot.textContent.trim()).toBe("Hello, World! I'm Stencil 'Don't call me a framework' JS");
   });
 });
