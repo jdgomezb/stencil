@@ -16,7 +16,7 @@
   ],
   "scripts": {
     "clean": "rm -rf dist loader www",
-    "build": "node ../../../bin/stencil build --no-docs",
+    "build": "node ../../../bin/stencil build --docs",
     "start": "node ../../../bin/stencil build --dev --watch --serve"
   },
   "license": "MIT"
