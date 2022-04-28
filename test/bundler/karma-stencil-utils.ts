@@ -7,9 +7,19 @@ function waitFrame() {
 }
 
 /**
- * Create setup methods for dom based tests.
+ *
  */
-export function setupDomTests(document: Document) {
+type DomTestUtilities = {
+  setupDom: (url: string, waitForStencilReady?: number) => Promise<HTMLElement>,
+  tearDownDom: () => void,
+}
+
+/**
+ * Create setup methods for dom based tests.
+ * @param document
+ * @returns
+ */
+export function setupDomTests(document: Document): DomTestUtilities {
   let testBed = document.getElementById('test-app');
   if (!testBed) {
     testBed = document.createElement('div');
@@ -18,9 +28,12 @@ export function setupDomTests(document: Document) {
   }
 
   /**
-   * Run this before each test
+   *
+   * @param url
+   * @param waitForStencilReady
+   * @returns
    */
-  function setupDom(url: string, waitForStencilReady?: number) {
+  function setupDom(url: string, waitForStencilReady?: number): Promise<HTMLElement> {
     const app = document.createElement('div');
     app.className = 'test-spec';
     testBed.appendChild(app);
@@ -32,16 +45,41 @@ export function setupDomTests(document: Document) {
 
   /**
    * Create web component for executing tests against
+   * @param url
+   * @param app
+   * @param waitForStencilReady
+   * @returns
    */
-  function renderTest(url: string, app: HTMLElement, waitForStencilReady: number) {
+  function renderTest(url: string, app: HTMLElement, waitForStencilReady: number): Promise<HTMLElement> {
     // 'base' is the directory that karma will serve all assets from
     url = path.join('base', url);
 
     return new Promise<HTMLElement>((resolve, reject) => {
       try {
-        const allReady = () => {
+        /**
+         *
+         * @returns
+         */
+        const stencilReady = (): Promise<any> => {
+          return allReady()
+            .then(() => waitFrame())
+            .then(() => allReady());
+        };
+
+        /**
+         *
+         * @returns
+         */
+        const allReady = (): Promise<any[] | void> => {
           const promises: Promise<any>[] = [];
-          const waitForDidLoad = (promises: Promise<any>[], elm: Element) => {
+
+          /**
+           *
+           * @param promises
+           * @param elm
+           * @returns
+           */
+          const waitForDidLoad = (promises: Promise<any>[], elm: Element): void => {
             if (elm != null && elm.nodeType === 1) {
               for (let i = 0; i < elm.children.length; i++) {
                 const childElm = elm.children[i];
@@ -58,13 +96,12 @@ export function setupDomTests(document: Document) {
           return Promise.all(promises).catch((e) => console.error(e));
         };
 
-        const stencilReady = (): Promise<any> => {
-          return allReady()
-            .then(() => waitFrame())
-            .then(() => allReady());
-        };
-
-        const indexLoaded = function (this: XMLHttpRequest) {
+        /**
+         *
+         * @param this
+         * @returns
+         */
+        const indexLoaded = function (this: XMLHttpRequest): void {
           if (this.status !== 200) {
             reject(`404: ${url}`);
             return;
@@ -128,7 +165,7 @@ export function setupDomTests(document: Document) {
   /**
    * Run this after each test
    */
-  function tearDownDom() {
+  function tearDownDom(): void {
     testBed.innerHTML = '';
   }
 
