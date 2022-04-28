@@ -1,4 +1,4 @@
-// import type {Config} from 'karma';
+import type { Config } from 'karma';
 
 // use the instance of chromium that is downloaded as a part of stencil's puppeteer dependency
 process.env.CHROME_BIN = require('puppeteer').executablePath();
@@ -26,7 +26,7 @@ const localLaunchers = {
  * @param config the configuration object. this object will be updated/mutated with the settings necessary to run our
  * tests
  */
-module.exports = function (config) {
+module.exports = function (config: Config): void {
   config.set({
     browsers: Object.keys(localLaunchers),
     colors: true,
@@ -49,13 +49,13 @@ module.exports = function (config) {
       'vite-bundle-test/vite-bundle.spec.ts', // tells karma these are tests we need to serve & run
       'util.ts',
     ],
-    // polyfill: ['Promise'],
+    // @ts-ignore - karma's configuration options are not to accommodate plugins
     karmaTypescriptConfig: {
       exclude: ['./component-library'],
     },
-    frameworks: ['jasmine', 'karma-typescript', 'polyfill'],
+    frameworks: ['jasmine', 'karma-typescript'],
     logLevel: config.LOG_DEBUG,
-    plugins: ['karma-chrome-launcher', 'karma-jasmine', 'karma-polyfill', 'karma-typescript'],
+    plugins: ['karma-chrome-launcher', 'karma-jasmine', 'karma-typescript'],
     proxies: {
       '/assets/': `/base/vite-bundle-test/dist/assets/`,
       // '/p-assets/': `/base/parcel-bundle-test/dist/p-assets/`,

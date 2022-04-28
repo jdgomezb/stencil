@@ -1,0 +1,6 @@
+{
+  "compilerOptions": {
+    // karma-typescript only supports CommonJS
+    "module": "CommonJS"
+  },
+}
