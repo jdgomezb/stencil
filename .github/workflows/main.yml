@@ -27,7 +27,7 @@ jobs:
     needs: [ build_core ]
     uses: ./.github/workflows/test-analysis.yml
 
-  bunder_tests:
+  bundler_tests:
     name: Bundler Tests
     needs: [ build_core ]
     uses: ./.github/workflows/test-bundlers.yml
