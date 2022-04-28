@@ -31,6 +31,7 @@ module.exports = function (config: Config): void {
     browsers: Object.keys(localLaunchers),
     colors: true,
     files: [
+      // use the application built by parcel
       { pattern: 'parcel-bundle-test/dist/index.html', nocache: true },
       {
         pattern: 'parcel-bundle-test/dist/**/*.js',
@@ -39,6 +40,8 @@ module.exports = function (config: Config): void {
         nocache: true,
       },
       'parcel-bundle-test/parcel-bundle.spec.ts',
+
+      // use the application built by vite
       { pattern: 'vite-bundle-test/dist/index.html', nocache: true },
       {
         pattern: 'vite-bundle-test/dist/**/*.js',
