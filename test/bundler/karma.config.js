@@ -1,25 +1,33 @@
+// use the instance of chromium that is downloaded as a part of stencil's puppeteer dependency
 process.env.CHROME_BIN = require('puppeteer').executablePath();
 
+// local browsers to run the tests against
 const localLaunchers = {
   ChromeHeadless: {
     base: 'ChromeHeadless',
     flags: [
-      '--no-sandbox',
-      // See https://chromium.googlesource.com/chromium/src/+/lkgr/headless/README.md
+      // run in headless mode (https://chromium.googlesource.com/chromium/src/+/lkgr/headless/README.md)
       '--headless',
+      // use --disable-gpu to avoid an error from a missing Mesa library (https://chromium.googlesource.com/chromium/src/+/lkgr/headless/README.md)
       '--disable-gpu',
-      // Without a remote debugging port, Google Chrome exits immediately.
+      // without a remote debugging port, Chrome exits immediately.
       '--remote-debugging-port=9333',
     ],
   },
 };
 
+/**
+ * Export a function to configure Karma to run
+ * @param config the configuration object. this object will be updated/mutated with the settings necessary to run our
+ * tests
+ */
 module.exports = function (config) {
+  // http://karma-runner.github.io/6.3/config/configuration-file.html
   config.set({
     plugins: ['karma-chrome-launcher', 'karma-jasmine', 'karma-polyfill', 'karma-typescript'],
     browsers: Object.keys(localLaunchers),
 
-    singleRun: false, // set this to false to leave the browser open
+    singleRun: false, // set this to false to leave the browser open to debug karma
 
     frameworks: ['jasmine', 'karma-typescript', 'polyfill'],
 
