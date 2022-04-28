@@ -1,23 +1,37 @@
 import * as path from 'path';
 
-function waitFrame() {
+/**
+ *
+ * @returns
+ */
+function waitFrame(): Promise<number> {
   return new Promise((resolve) => {
     requestAnimationFrame(resolve);
   });
 }
 
 /**
- *
+ * Utilities for creating a test bed to execute HTML rendering tests against
  */
 type DomTestUtilities = {
-  setupDom: (url: string, waitForStencilReady?: number) => Promise<HTMLElement>,
-  tearDownDom: () => void,
-}
+  /**
+   * Create and render an element containing the HTML at the provided url.
+   * @param url the location on disk containing the HTML to load
+   * @param waitForStencilReadyMs the number of milliseconds to wait for the rendering pipeline to complete
+   * @returns
+   */
+  setupDom: (url: string, waitForStencilReadyMs?: number) => Promise<HTMLElement>;
+  /**
+   * Clears the test bed of any existing HTML
+   */
+  tearDownDom: () => void;
+};
 
 /**
- * Create setup methods for dom based tests.
- * @param document
- * @returns
+ * Create setup and teardown methods for DOM based tests. All DOM based tests are created within an application
+ * 'test bed' that is managed by this function.
+ * @param document a `Document` compliant entity where tests may be rendered
+ * @returns utilities to set up the DOM and tear it down within the test bed
  */
 export function setupDomTests(document: Document): DomTestUtilities {
   let testBed = document.getElementById('test-app');
@@ -28,29 +42,25 @@ export function setupDomTests(document: Document): DomTestUtilities {
   }
 
   /**
-   *
-   * @param url
-   * @param waitForStencilReady
-   * @returns
+   * @see {@link DomTestUtilities#setupDom}
    */
-  function setupDom(url: string, waitForStencilReady?: number): Promise<HTMLElement> {
+  function setupDom(url: string, waitForStencilReadyMs?: number): Promise<HTMLElement> {
     const app = document.createElement('div');
     app.className = 'test-spec';
     testBed.appendChild(app);
 
     app.setAttribute('data-url', url);
-    return renderTest(url, app, waitForStencilReady);
+    return renderTest(url, app, waitForStencilReadyMs);
   }
-
 
   /**
    * Create web component for executing tests against
-   * @param url
+   * @param url the location on disk containing the HTML to load
    * @param app
-   * @param waitForStencilReady
+   * @param waitForStencilReadyMs the number of milliseconds to wait for the rendering pipeline to complete
    * @returns
    */
-  function renderTest(url: string, app: HTMLElement, waitForStencilReady: number): Promise<HTMLElement> {
+  function renderTest(url: string, app: HTMLElement, waitForStencilReadyMs: number): Promise<HTMLElement> {
     // 'base' is the directory that karma will serve all assets from
     url = path.join('base', url);
 
@@ -132,10 +142,10 @@ export function setupDomTests(document: Document): DomTestUtilities {
 
           elm.innerHTML = '';
 
-          if (typeof waitForStencilReady === 'number') {
+          if (typeof waitForStencilReadyMs === 'number') {
             setTimeout(() => {
               resolve(app);
-            }, waitForStencilReady);
+            }, waitForStencilReadyMs);
           } else {
             const appLoad = () => {
               window.removeEventListener('appload', appLoad);
@@ -163,7 +173,7 @@ export function setupDomTests(document: Document): DomTestUtilities {
   }
 
   /**
-   * Run this after each test
+   * @see {@link DomTestUtilities#tearDownDom}
    */
   function tearDownDom(): void {
     testBed.innerHTML = '';
