@@ -47,15 +47,6 @@ module.exports = function (config) {
       },
       'vite-bundle-test/vite-bundle.spec.ts', // tells karma these are tests we need to serve & run
       'util.ts',
-
-      // {
-      //   pattern: path.join('test-output', 'vite', '/**/*'),
-      //   watched: false,
-      //   included: false,
-      //   served: true,
-      //   nocache: true,
-      //   type: 'module',
-      // },
     ],
 
     karmaTypescriptConfig: {

@@ -15,7 +15,6 @@
     "noUnusedParameters": true,
     "jsx": "react",
     "jsxFactory": "h",
-//    TODO: Revisist
     "paths": {
       "@stencil/core": ["../../../internal"],
       "@stencil/core/internal": ["../../../internal"],

@@ -27,7 +27,6 @@ export class MyComponent {
   }
 
   render() {
-    console.log('RYAN::render');
     return <div>Hello, World! I'm {this.getText()}</div>;
   }
 }
