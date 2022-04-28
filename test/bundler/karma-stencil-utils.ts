@@ -1,39 +1,5 @@
 import * as path from 'path';
 
-// const { WWW_OUT_DIR } = require('../constants');
-
-const activeRendering = new Set();
-const onAppReadyCallbacks: Function[] = [];
-
-export declare namespace SomeTypes {
-  type Number = number;
-  type String = string;
-}
-
-function willRender(elm: any) {
-  activeRendering.add(elm);
-}
-
-function didRender(elm: any) {
-  activeRendering.delete(elm);
-  if (onAppReadyCallbacks.length > 0 && activeRendering.size === 0) {
-    // we've got some promises waiting on the entire app to be done processing
-    // so it should have an empty queue and no longer rendering
-    let cb: any;
-    while ((cb = onAppReadyCallbacks.shift())) {
-      cb();
-    }
-  }
-}
-
-function onReady(callback: Function) {
-  if (activeRendering.size === 0) {
-    callback();
-  } else {
-    onAppReadyCallbacks.push(callback);
-  }
-}
-
 function waitFrame() {
   return new Promise((resolve) => {
     requestAnimationFrame(resolve);
@@ -54,55 +20,21 @@ export function setupDomTests(document: Document) {
   /**
    * Run this before each test
    */
-  function setupDom(url?: string, waitForStencilReady?: number) {
+  function setupDom(url: string, waitForStencilReady?: number) {
     const app = document.createElement('div');
-    activeRendering.clear();
-    onAppReadyCallbacks.length = 0;
-    app.addEventListener('stencil_componentWillRender', (ev) => willRender(ev.target));
-    app.addEventListener('stencil_componentDidRender', (ev) => didRender(ev.target));
-
     app.className = 'test-spec';
     testBed.appendChild(app);
 
-    if (url) {
-      app.setAttribute('data-url', url);
-      return renderTest(url, app, waitForStencilReady);
-    }
-
-    return Promise.resolve(app);
+    app.setAttribute('data-url', url);
+    return renderTest(url, app, waitForStencilReady);
   }
 
-  /**
-   * Run this after each test
-   */
-  function tearDownDom() {
-    testBed!.innerHTML = '';
-  }
-
-  /**
-   * Run this after each test that needs it's resources flushed
-   */
-  function tearDownStylesScripts() {
-    document.head.querySelectorAll('style[data-styles]').forEach((e) => e.remove());
-
-    [
-      '/build/testinvisibleprehydration.esm.js',
-      '/build/testinvisibleprehydration.js',
-      '/build/testprehydratedtruestyles.esm.js',
-      '/build/testprehydratedtruestyles.js',
-      '/build/testprehydratedfalsestyles.esm.js',
-      '/build/testprehydratedfalsestyles.js',
-      '/build/testapp.esm.js',
-      '/build/testapp.js',
-    ].forEach((src) => {
-      document.querySelectorAll(`script[src="${src}"]`).forEach((e) => e.remove());
-    });
-  }
 
   /**
    * Create web component for executing tests against
    */
   function renderTest(url: string, app: HTMLElement, waitForStencilReady: number) {
+    // 'base' is the directory that karma will serve all assets from
     url = path.join('base', url);
 
     return new Promise<HTMLElement>((resolve, reject) => {
@@ -193,26 +125,12 @@ export function setupDomTests(document: Document) {
     });
   }
 
-  return { setupDom, tearDownDom, tearDownStylesScripts };
-}
+  /**
+   * Run this after each test
+   */
+  function tearDownDom() {
+    testBed.innerHTML = '';
+  }
 
-/**
- * Wait for the component to asynchronously update
- */
-export function waitForChanges(timeout = 250) {
-  const win = window as any;
-
-  return new Promise((resolve) => {
-    function pageLoaded() {
-      setTimeout(() => {
-        onReady(resolve);
-      }, timeout);
-    }
-
-    if (document.readyState === 'complete') {
-      pageLoaded();
-    } else {
-      win.addEventListener('load', pageLoaded, false);
-    }
-  });
+  return { setupDom, tearDownDom };
 }

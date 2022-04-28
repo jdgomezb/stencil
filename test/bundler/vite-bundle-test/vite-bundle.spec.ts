@@ -1,4 +1,4 @@
-import { setupDomTests } from '../util';
+import { setupDomTests } from '../karma-stencil-utils';
 
 describe('vite-bundle', () => {
   const { setupDom, tearDownDom } = setupDomTests(document);

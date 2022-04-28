@@ -50,7 +50,7 @@ module.exports = function (config: Config): void {
         nocache: true,
       },
       'vite-bundle-test/vite-bundle.spec.ts',
-      'util.ts',
+      'karma-stencil-utils.ts',
     ],
     // @ts-ignore - karma's configuration options are designed not to accommodate plugins (`karmaTypescriptConfig` does
     // is therefore not considered a valid key)
