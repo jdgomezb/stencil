@@ -26,3 +26,7 @@ This directory contains a test to validate a Stencil library that uses the `dist
 application that is bundled with [Vite](https://vitejs.dev/).
 
 ## design & setup
+
+the tests suites in this directory are written in TypeScript, and are transpiled by [karma-typescript](https://github.com/monounity/karma-typescript#readme).
+
+TODO I prob have more to say here about the setup

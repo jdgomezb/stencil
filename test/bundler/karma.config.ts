@@ -31,25 +31,26 @@ module.exports = function (config: Config): void {
     browsers: Object.keys(localLaunchers),
     colors: true,
     files: [
-      { pattern: 'parcel-bundle-test/dist/index.html', nocache: true, included: false },
+      { pattern: 'parcel-bundle-test/dist/index.html', nocache: true },
       {
         pattern: 'parcel-bundle-test/dist/**/*.js',
+        // don't include these files via <script> tags, or they'll be included more than once
         included: false,
         nocache: true,
-        type: 'module',
       },
-      'parcel-bundle-test/parcel-bundle.spec.ts', // tells karma these are tests we need to serve & run
-      { pattern: 'vite-bundle-test/dist/index.html', nocache: true, included: false },
+      'parcel-bundle-test/parcel-bundle.spec.ts',
+      { pattern: 'vite-bundle-test/dist/index.html', nocache: true },
       {
         pattern: 'vite-bundle-test/dist/**/*.js',
+        // don't include these files via <script> tags, or they'll be included more than once
         included: false,
         nocache: true,
-        type: 'module',
       },
-      'vite-bundle-test/vite-bundle.spec.ts', // tells karma these are tests we need to serve & run
+      'vite-bundle-test/vite-bundle.spec.ts',
       'util.ts',
     ],
-    // @ts-ignore - karma's configuration options are not to accommodate plugins
+    // @ts-ignore - karma's configuration options are designed not to accommodate plugins (`karmaTypescriptConfig` does
+    // is therefore not considered a valid key)
     karmaTypescriptConfig: {
       exclude: ['./component-library'],
     },
