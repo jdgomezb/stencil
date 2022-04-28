@@ -9,10 +9,11 @@
     "clean.component-lib": "cd component-library && npm run clean && cd ../",
     "clean.parcel": "cd parcel-bundle-test && npm run clean && cd ../",
     "clean.vite": "cd vite-bundle-test && npm run clean && cd ../",
-    "karma": "karma start karma.config.js",
+    "karma": "karma start karma.config.ts",
     "start": "npm run clean && npm run build && npm run karma"
   },
   "devDependencies": {
+    "@types/karma": "^6.3.3",
     "karma": "^6.3.17",
     "karma-chrome-launcher": "^3.1.0",
     "karma-jasmine": "^5.0.0",

@@ -1,3 +1,5 @@
+// import type {Config} from 'karma';
+
 // use the instance of chromium that is downloaded as a part of stencil's puppeteer dependency
 process.env.CHROME_BIN = require('puppeteer').executablePath();
 
@@ -17,27 +19,18 @@ const localLaunchers = {
 };
 
 /**
- * Export a function to configure Karma to run
+ * Export a function to configure Karma to run.
+ *
+ * For details on how to configure Karma, see http://karma-runner.github.io/6.3/config/configuration-file.html
+ *
  * @param config the configuration object. this object will be updated/mutated with the settings necessary to run our
  * tests
  */
 module.exports = function (config) {
-  // http://karma-runner.github.io/6.3/config/configuration-file.html
   config.set({
-    plugins: ['karma-chrome-launcher', 'karma-jasmine', 'karma-polyfill', 'karma-typescript'],
     browsers: Object.keys(localLaunchers),
-
-    singleRun: false, // set this to false to leave the browser open to debug karma
-
-    frameworks: ['jasmine', 'karma-typescript', 'polyfill'],
-
-    polyfill: ['Promise'],
-    preprocessors: {
-      '**/*.ts': 'karma-typescript',
-    },
-    urlRoot: '/__karma__/',
+    colors: true,
     files: [
-      // pattern: 'parcel-bundle-test/dist/*.{html,js}',
       { pattern: 'parcel-bundle-test/dist/index.html', nocache: true, included: false },
       {
         pattern: 'parcel-bundle-test/dist/**/*.js',
@@ -56,21 +49,22 @@ module.exports = function (config) {
       'vite-bundle-test/vite-bundle.spec.ts', // tells karma these are tests we need to serve & run
       'util.ts',
     ],
-
+    // polyfill: ['Promise'],
     karmaTypescriptConfig: {
       exclude: ['./component-library'],
     },
-
-    // http://localhost:9876/__karma__/base/vite-bundle-test/dist/assets/index.dbcbef01.js
+    frameworks: ['jasmine', 'karma-typescript', 'polyfill'],
+    logLevel: config.LOG_DEBUG,
+    plugins: ['karma-chrome-launcher', 'karma-jasmine', 'karma-polyfill', 'karma-typescript'],
     proxies: {
       '/assets/': `/base/vite-bundle-test/dist/assets/`,
       // '/p-assets/': `/base/parcel-bundle-test/dist/p-assets/`,
     },
-
-    colors: true,
-
-    logLevel: config.LOG_DEBUG,
-
+    preprocessors: {
+      '**/*.ts': 'karma-typescript',
+    },
     reporters: ['progress'],
+    singleRun: false, // set this to false to leave the browser open to debug karma
+    urlRoot: '/__karma__/',
   });
 };
