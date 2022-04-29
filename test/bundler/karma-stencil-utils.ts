@@ -71,7 +71,7 @@ export function setupDomTests(document: Document): DomTestUtilities {
        * @param this TODO
        * @returns TODO
        */
-      const indexLoaded = function (this: XMLHttpRequest): void {
+      const indexHtmlLoaded = function (this: XMLHttpRequest): void {
         if (this.status !== 200) {
           reject(`404: ${url}`);
           return;
@@ -155,7 +155,7 @@ export function setupDomTests(document: Document): DomTestUtilities {
 
       try {
         const testHtmlRequest = new XMLHttpRequest();
-        testHtmlRequest.addEventListener('load', indexLoaded);
+        testHtmlRequest.addEventListener('load', indexHtmlLoaded);
         testHtmlRequest.addEventListener('error', (err) => {
           console.error('error testHtmlRequest.addEventListener', err);
           reject(err);
