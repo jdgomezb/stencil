@@ -6,12 +6,10 @@
   "scripts": {
     "clean": "rm -rf .parcel-cache dist",
     "start": "parcel src/index.html",
-    "build": "parcel build src/index.html",
-    "serve": "npm run build && http-server ./dist -c-1"
+    "build": "parcel build src/index.html --no-source-maps && ./restructure.sh"
   },
   "license": "MIT",
   "devDependencies": {
-    "http-server": "^14.1.0",
     "parcel": "^2.5.0"
   },
   "dependencies": {

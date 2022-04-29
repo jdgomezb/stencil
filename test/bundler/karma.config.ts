@@ -60,6 +60,7 @@ module.exports = function (config: Config): void {
       tsconfig: './tsconfig.json',
     },
     frameworks: ['jasmine', 'karma-typescript'],
+    // sets the log level of karma, increasing the verbosity is useful for debugging the karma itself
     // TODO
     logLevel: config.LOG_DEBUG,
     plugins: ['karma-chrome-launcher', 'karma-jasmine', 'karma-typescript'],
@@ -75,13 +76,13 @@ module.exports = function (config: Config): void {
      */
     proxies: {
       '/assets/': '/base/vite-bundle-test/dist/assets/',
-      // '/p-assets/': '/base/parcel-bundle-test/dist/p-assets/',
+      '/parcel-assets/': '/base/parcel-bundle-test/dist/parcel-assets/',
     },
     preprocessors: {
       '**/*.ts': 'karma-typescript',
     },
     // exit after running - set this to `false` to leave the browser open to debug karma
-    singleRun: false,
+    singleRun: true,
     // set a URL root that makes it easy to differentiate files served by karma vs other file servers
     urlRoot: '/__karma__/',
   });
