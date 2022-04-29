@@ -38,17 +38,17 @@ export function setupDomTests(document: Document): DomTestUtilities {
    * @see {@link DomTestUtilities#setupDom}
    */
   function setupDom(url: string): Promise<HTMLElement> {
-    const testCase = document.createElement('div');
-    testCase.className = 'test-spec';
+    const testElement = document.createElement('div');
+    testElement.className = 'test-spec';
 
     if (!testBed) {
       console.error('The Stencil/Karma test bed could not be found.');
       process.exit(1);
     }
 
-    testBed.appendChild(testCase);
+    testBed.appendChild(testElement);
 
-    return renderTest(url, testCase);
+    return renderTest(url, testElement);
   }
 
   /**
@@ -79,7 +79,18 @@ export function setupDomTests(document: Document): DomTestUtilities {
          * Re-generate script tags that are embedded in the loaded HTML file.
          *
          * Doing so allows JS files to be loaded (via script tags), when the HTML is served, without having to configure
-         * Karma to load the JS explicitly.
+         * Karma to load the JS explicitly. This is done by adding the host/port combination to existing `src`
+         * attributes.
+         *
+         * Before:
+         * ```html
+         * <script type="module" src="/index.6127a5ed.js"></script>
+         * ```
+         *
+         * After:
+         * ```html
+         * <script src="http://localhost:9876/index.547a265b.js" type="module"></script>
+         * ```
          */
         const parseAndRebuildScriptTags = () => {
           const tempScripts: NodeListOf<HTMLScriptElement> = testElement.querySelectorAll('script');
