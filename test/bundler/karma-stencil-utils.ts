@@ -69,19 +69,18 @@ export function setupDomTests(document: Document): DomTestUtilities {
 
     return new Promise<HTMLElement>((resolve, reject) => {
       /**
-       *
-       * @param this
-       * @returns
+       * TODO
+       * @param this TODO
+       * @returns TODO
        */
       const indexLoaded = function (this: XMLHttpRequest): void {
         if (this.status !== 200) {
           reject(`404: ${url}`);
           return;
         }
-        const frag = document.createDocumentFragment();
+
         const elm = document.createElement('div');
         elm.innerHTML = this.responseText;
-        frag.appendChild(elm);
         app.innerHTML = elm.innerHTML;
 
         const tmpScripts = app.querySelectorAll('script') as NodeListOf<HTMLScriptElement>;
