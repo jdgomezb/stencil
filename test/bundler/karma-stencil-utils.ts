@@ -159,15 +159,15 @@ export function setupDomTests(document: Document): DomTestUtilities {
       };
 
       try {
-        const oReq = new XMLHttpRequest();
-        oReq.addEventListener('load', indexLoaded);
-        oReq.addEventListener('error', (err) => {
-          console.error('error oReq.addEventListener', err);
+        const testHtmlRequest = new XMLHttpRequest();
+        testHtmlRequest.addEventListener('load', indexLoaded);
+        testHtmlRequest.addEventListener('error', (err) => {
+          console.error('error testHtmlRequest.addEventListener', err);
           reject(err);
         });
-        oReq.open('GET', url);
-        oReq.send();
-      } catch (e) {
+        testHtmlRequest.open('GET', url);
+        testHtmlRequest.send();
+      } catch (e: unknown) {
         console.error('catch error', e);
         reject(e);
       }
