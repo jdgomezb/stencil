@@ -79,9 +79,7 @@ export function setupDomTests(document: Document): DomTestUtilities {
           return;
         }
 
-        const elm = document.createElement('div');
-        elm.innerHTML = this.responseText;
-        app.innerHTML = elm.innerHTML;
+        app.innerHTML = this.responseText;
 
         const tmpScripts = app.querySelectorAll('script') as NodeListOf<HTMLScriptElement>;
         for (let i = 0; i < tmpScripts.length; i++) {
@@ -101,7 +99,6 @@ export function setupDomTests(document: Document): DomTestUtilities {
           tmpScripts[i].parentNode!.removeChild(tmpScripts[i]);
         }
 
-        elm.innerHTML = '';
 
         if (typeof waitForStencilReadyMs === 'number') {
           setTimeout(() => {
