@@ -29,7 +29,7 @@ const entryDeps = [
   'postcss',
   'prompts',
   'rollup',
-  'semver',
+  'semiver',
   'sizzle',
   'source-map',
   'terser',
