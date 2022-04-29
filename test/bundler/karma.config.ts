@@ -63,10 +63,19 @@ module.exports = function (config: Config): void {
     // TODO
     logLevel: config.LOG_DEBUG,
     plugins: ['karma-chrome-launcher', 'karma-jasmine', 'karma-typescript'],
-    // TODO
+    /**
+     * each entry in the `proxies` object maps the value of the entry (the location on disk of 1+ file(s)) to a location
+     * that karma will make the files available (the key). e.g.
+     *
+     * {
+     *   '/assets/': `/base/vite-bundle-test/dist/assets/`,
+     * }
+     *
+     * maps the files found at '/base/vite-bundle-test/dist/assets/', to the '/assets/' directory on the karma server
+     */
     proxies: {
-      '/assets/': `/base/vite-bundle-test/dist/assets/`,
-      // '/p-assets/': `/base/parcel-bundle-test/dist/p-assets/`,
+      '/assets/': '/base/vite-bundle-test/dist/assets/',
+      // '/p-assets/': '/base/parcel-bundle-test/dist/p-assets/',
     },
     preprocessors: {
       '**/*.ts': 'karma-typescript',
