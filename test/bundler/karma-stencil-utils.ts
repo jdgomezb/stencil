@@ -17,10 +17,9 @@ type DomTestUtilities = {
   /**
    * Create and render the HTML at the provided url
    * @param url a location on disk of a file containing the HTML to load
-   * @param waitForStencilReadyMs the number of milliseconds to wait for the rendering pipeline to complete
    * @returns TODO
    */
-  setupDom: (url: string, waitForStencilReadyMs?: number) => Promise<HTMLElement>;
+  setupDom: (url: string) => Promise<HTMLElement>;
   /**
    * Clears the test bed of any existing HTML
    */
@@ -48,22 +47,21 @@ export function setupDomTests(document: Document): DomTestUtilities {
   /**
    * @see {@link DomTestUtilities#setupDom}
    */
-  function setupDom(url: string, waitForStencilReadyMs?: number): Promise<HTMLElement> {
+  function setupDom(url: string): Promise<HTMLElement> {
     const app = document.createElement('div');
     app.className = 'test-spec';
     testBed.appendChild(app);
 
-    return renderTest(url, app, waitForStencilReadyMs);
+    return renderTest(url, app);
   }
 
   /**
    * Render HTML for executing tests against.
    * @param url the location on disk containing the HTML to load
    * @param app a parent HTML element to place test code in
-   * @param waitForStencilReadyMs the number of milliseconds to wait for the rendering pipeline to complete
    * @returns TODO
    */
-  function renderTest(url: string, app: HTMLElement, waitForStencilReadyMs: number): Promise<HTMLElement> {
+  function renderTest(url: string, app: HTMLElement): Promise<HTMLElement> {
     // 'base' is the directory that karma will serve all assets from
     url = path.join('base', url);
 
@@ -81,38 +79,38 @@ export function setupDomTests(document: Document): DomTestUtilities {
 
         app.innerHTML = this.responseText;
 
-        const tmpScripts = app.querySelectorAll('script') as NodeListOf<HTMLScriptElement>;
-        for (let i = 0; i < tmpScripts.length; i++) {
-          const script = document.createElement('script') as HTMLScriptElement;
-          if (tmpScripts[i].src) {
-            script.src = tmpScripts[i].src;
-          }
-          if (tmpScripts[i].hasAttribute('nomodule')) {
-            script.setAttribute('nomodule', '');
-          }
-          if (tmpScripts[i].hasAttribute('type')) {
-            script.setAttribute('type', tmpScripts[i].getAttribute('type')!);
-          }
-          script.innerHTML = tmpScripts[i].innerHTML;
+        /**
+         * TODO
+         */
+        const parseScriptTags = () => {
+          const tmpScripts: NodeListOf<HTMLScriptElement> = app.querySelectorAll('script');
+          for (let i = 0; i < tmpScripts.length; i++) {
+            const script: HTMLScriptElement = document.createElement('script');
+            if (tmpScripts[i].src) {
+              script.src = tmpScripts[i].src;
+            }
+            if (tmpScripts[i].hasAttribute('nomodule')) {
+              script.setAttribute('nomodule', '');
+            }
+            if (tmpScripts[i].hasAttribute('type')) {
+              script.setAttribute('type', tmpScripts[i].getAttribute('type'));
+            }
+            script.innerHTML = tmpScripts[i].innerHTML;
 
-          tmpScripts[i].parentNode!.insertBefore(script, tmpScripts[i]);
-          tmpScripts[i].parentNode!.removeChild(tmpScripts[i]);
+            tmpScripts[i].parentNode.insertBefore(script, tmpScripts[i]);
+            tmpScripts[i].parentNode.removeChild(tmpScripts[i]);
+          }
         }
 
+        parseScriptTags();
 
-        if (typeof waitForStencilReadyMs === 'number') {
-          setTimeout(() => {
+        const appLoad = () => {
+          window.removeEventListener('appload', appLoad);
+          stencilReady().then(() => {
             resolve(app);
-          }, waitForStencilReadyMs);
-        } else {
-          const appLoad = () => {
-            window.removeEventListener('appload', appLoad);
-            stencilReady().then(() => {
-              resolve(app);
-            });
-          };
-          window.addEventListener('appload', appLoad);
-        }
+          });
+        };
+        window.addEventListener('appload', appLoad);
       };
 
       /**
