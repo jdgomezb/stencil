@@ -100,7 +100,7 @@ export function setupDomTests(document: Document): DomTestUtilities {
             tmpScripts[i].parentNode.insertBefore(script, tmpScripts[i]);
             tmpScripts[i].parentNode.removeChild(tmpScripts[i]);
           }
-        }
+        };
 
         parseScriptTags();
 
