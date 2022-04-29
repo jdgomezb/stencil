@@ -50,6 +50,12 @@ export function setupDomTests(document: Document): DomTestUtilities {
   function setupDom(url: string): Promise<HTMLElement> {
     const app = document.createElement('div');
     app.className = 'test-spec';
+
+    if (!testBed) {
+      console.error('The Stencil/Karma test bed could not be found.');
+      process.exit(1);
+    }
+
     testBed.appendChild(app);
 
     return renderTest(url, app);
@@ -93,12 +99,22 @@ export function setupDomTests(document: Document): DomTestUtilities {
               script.setAttribute('nomodule', '');
             }
             if (tmpScripts[i].hasAttribute('type')) {
-              script.setAttribute('type', tmpScripts[i].getAttribute('type'));
+              const typeAttribute = tmpScripts[i].getAttribute('type');
+              if (typeof typeAttribute === 'string') { // TODO
+                script.setAttribute('type', tmpScripts[i].getAttribute('type')!);
+              }
             }
             script.innerHTML = tmpScripts[i].innerHTML;
 
-            tmpScripts[i].parentNode.insertBefore(script, tmpScripts[i]);
-            tmpScripts[i].parentNode.removeChild(tmpScripts[i]);
+            if (tmpScripts[i].parentNode) {
+              // the scripts were found by querying a common parent node, which _should_ still exist
+              tmpScripts[i].parentNode!.insertBefore(script, tmpScripts[i]);
+              tmpScripts[i].parentNode!.removeChild(tmpScripts[i]);
+            } else {
+              // if for some reason the parent node no longer exists, something's manipulated it while we were parsing
+              // the script tags. this can lead to undesirable & hard to debug behavior, fail.
+              reject('the parent node for script tags no longer exists. exiting.')
+            }
           }
         };
 
@@ -173,7 +189,8 @@ export function setupDomTests(document: Document): DomTestUtilities {
    * @see {@link DomTestUtilities#tearDownDom}
    */
   function tearDownDom(): void {
-    testBed.innerHTML = '';
+    // TODO
+    testBed!.innerHTML = '';
   }
 
   return { setupDom, tearDownDom };

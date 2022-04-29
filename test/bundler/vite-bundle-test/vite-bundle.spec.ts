@@ -14,6 +14,6 @@ describe('vite-bundle', () => {
     if (!cmpShadowRoot) {
       fail(`unable to find shadow root on component 'my-component'`);
     }
-    expect(cmpShadowRoot.textContent.trim()).toBe("Hello, World! I'm Stencil 'Don't call me a framework' JS");
+    expect(cmpShadowRoot.textContent?.trim()).toBe("Hello, World! I'm Stencil 'Don't call me a framework' JS");
   });
 });
