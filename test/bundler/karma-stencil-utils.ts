@@ -1,16 +1,6 @@
 import * as path from 'path';
 
 /**
- * TODO
- * @returns
- */
-function waitFrame(): Promise<number> {
-  return new Promise((resolve) => {
-    requestAnimationFrame(resolve);
-  });
-}
-
-/**
  * Utilities for creating a test bed to execute HTML rendering tests against
  */
 type DomTestUtilities = {
@@ -86,43 +76,51 @@ export function setupDomTests(document: Document): DomTestUtilities {
         app.innerHTML = this.responseText;
 
         /**
-         * TODO
+         * Re-generate script tags that are embedded in the loaded HTML file.
+         *
+         * Doing so allows JS files to be loaded (via script tags), when the HTML is served, without having to configure
+         * Karma to load the JS explicitly.
          */
-        const parseScriptTags = () => {
-          const tmpScripts: NodeListOf<HTMLScriptElement> = app.querySelectorAll('script');
-          for (let i = 0; i < tmpScripts.length; i++) {
+        const parseAndRebuildScriptTags = () => {
+          const tempScripts: NodeListOf<HTMLScriptElement> = app.querySelectorAll('script');
+          for (let i = 0; i < tempScripts.length; i++) {
             const script: HTMLScriptElement = document.createElement('script');
-            if (tmpScripts[i].src) {
-              script.src = tmpScripts[i].src;
+            if (tempScripts[i].src) {
+              script.src = tempScripts[i].src;
             }
-            if (tmpScripts[i].hasAttribute('nomodule')) {
+            if (tempScripts[i].hasAttribute('nomodule')) {
               script.setAttribute('nomodule', '');
             }
-            if (tmpScripts[i].hasAttribute('type')) {
-              const typeAttribute = tmpScripts[i].getAttribute('type');
-              if (typeof typeAttribute === 'string') { // TODO
-                script.setAttribute('type', tmpScripts[i].getAttribute('type')!);
+            if (tempScripts[i].hasAttribute('type')) {
+              const typeAttribute = tempScripts[i].getAttribute('type');
+              if (typeof typeAttribute === 'string') {
+                // older DOM implementations would return an empty string to designate `null`
+                // here, we interpret the empty string to be a valid value
+                script.setAttribute('type', typeAttribute);
               }
             }
-            script.innerHTML = tmpScripts[i].innerHTML;
+            script.innerHTML = tempScripts[i].innerHTML;
 
-            if (tmpScripts[i].parentNode) {
+            if (tempScripts[i].parentNode) {
               // the scripts were found by querying a common parent node, which _should_ still exist
-              tmpScripts[i].parentNode!.insertBefore(script, tmpScripts[i]);
-              tmpScripts[i].parentNode!.removeChild(tmpScripts[i]);
+              tempScripts[i].parentNode!.insertBefore(script, tempScripts[i]);
+              tempScripts[i].parentNode!.removeChild(tempScripts[i]);
             } else {
               // if for some reason the parent node no longer exists, something's manipulated it while we were parsing
               // the script tags. this can lead to undesirable & hard to debug behavior, fail.
-              reject('the parent node for script tags no longer exists. exiting.')
+              reject('the parent node for script tags no longer exists. exiting.');
             }
           }
         };
 
-        parseScriptTags();
+        parseAndRebuildScriptTags();
 
+        /**
+         * TODO
+         */
         const appLoad = () => {
           window.removeEventListener('appload', appLoad);
-          stencilReady().then(() => {
+          allReady().then(() => {
             resolve(app);
           });
         };
@@ -130,24 +128,14 @@ export function setupDomTests(document: Document): DomTestUtilities {
       };
 
       /**
-       *
-       * @returns
-       */
-      const stencilReady = (): Promise<any> => {
-        return allReady()
-          .then(() => waitFrame())
-          .then(() => allReady());
-      };
-
-      /**
-       *
+       * TODO
        * @returns
        */
       const allReady = (): Promise<any[] | void> => {
         const promises: Promise<any>[] = [];
 
         /**
-         *
+         * TODO
          * @param promises
          * @param elm
          * @returns
@@ -189,8 +177,9 @@ export function setupDomTests(document: Document): DomTestUtilities {
    * @see {@link DomTestUtilities#tearDownDom}
    */
   function tearDownDom(): void {
-    // TODO
-    testBed!.innerHTML = '';
+    if (testBed) {
+      testBed.innerHTML = '';
+    }
   }
 
   return { setupDom, tearDownDom };
