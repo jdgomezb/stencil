@@ -38,26 +38,26 @@ export function setupDomTests(document: Document): DomTestUtilities {
    * @see {@link DomTestUtilities#setupDom}
    */
   function setupDom(url: string): Promise<HTMLElement> {
-    const app = document.createElement('div');
-    app.className = 'test-spec';
+    const testCase = document.createElement('div');
+    testCase.className = 'test-spec';
 
     if (!testBed) {
       console.error('The Stencil/Karma test bed could not be found.');
       process.exit(1);
     }
 
-    testBed.appendChild(app);
+    testBed.appendChild(testCase);
 
-    return renderTest(url, app);
+    return renderTest(url, testCase);
   }
 
   /**
    * Render HTML for executing tests against.
    * @param url the location on disk containing the HTML to load
-   * @param app a parent HTML element to place test code in
+   * @param testElement a parent HTML element to place test code in
    * @returns TODO
    */
-  function renderTest(url: string, app: HTMLElement): Promise<HTMLElement> {
+  function renderTest(url: string, testElement: HTMLElement): Promise<HTMLElement> {
     // 'base' is the directory that karma will serve all assets from
     url = path.join('base', url);
 
@@ -73,7 +73,7 @@ export function setupDomTests(document: Document): DomTestUtilities {
           return;
         }
 
-        app.innerHTML = this.responseText;
+        testElement.innerHTML = this.responseText;
 
         /**
          * Re-generate script tags that are embedded in the loaded HTML file.
@@ -82,7 +82,7 @@ export function setupDomTests(document: Document): DomTestUtilities {
          * Karma to load the JS explicitly.
          */
         const parseAndRebuildScriptTags = () => {
-          const tempScripts: NodeListOf<HTMLScriptElement> = app.querySelectorAll('script');
+          const tempScripts: NodeListOf<HTMLScriptElement> = testElement.querySelectorAll('script');
           for (let i = 0; i < tempScripts.length; i++) {
             const script: HTMLScriptElement = document.createElement('script');
             if (tempScripts[i].src) {
@@ -121,7 +121,7 @@ export function setupDomTests(document: Document): DomTestUtilities {
         const appLoad = () => {
           window.removeEventListener('appload', appLoad);
           allReady().then(() => {
-            resolve(app);
+            resolve(testElement);
           });
         };
         window.addEventListener('appload', appLoad);
