@@ -1,5 +1,9 @@
 import * as path from 'path';
 
+// we must use a relative path here instead of tsconfig#paths
+// see https://github.com/monounity/karma-typescript/issues/315
+import * as d from '../../internal';
+
 /**
  * Utilities for creating a test bed to execute HTML rendering tests against
  */
@@ -7,7 +11,7 @@ type DomTestUtilities = {
   /**
    * Create and render the HTML at the provided url
    * @param url a location on disk of a file containing the HTML to load
-   * @returns TODO
+   * @returns the fully rendered HTML to test against
    */
   setupDom: (url: string) => Promise<HTMLElement>;
   /**
@@ -24,8 +28,8 @@ type DomTestUtilities = {
  */
 export function setupDomTests(document: Document): DomTestUtilities {
   /**
-   * All HTML will be rendered as a child of the test bed - get it (and create it if it doesn't exist) so that it is
-   * available for all future tests.
+   * All HTML will be rendered as a child of the test bed - get it from the current document (and create it, if it
+   * doesn't exist) so that it is available for all future tests.
    */
   let testBed = document.getElementById('test-app');
   if (!testBed) {
@@ -55,7 +59,7 @@ export function setupDomTests(document: Document): DomTestUtilities {
    * Render HTML for executing tests against.
    * @param url the location on disk containing the HTML to load
    * @param testElement a parent HTML element to place test code in
-   * @returns TODO
+   * @returns the fully rendered HTML to test against
    */
   function renderTest(url: string, testElement: HTMLElement): Promise<HTMLElement> {
     // 'base' is the directory that karma will serve all assets from
@@ -63,9 +67,8 @@ export function setupDomTests(document: Document): DomTestUtilities {
 
     return new Promise<HTMLElement>((resolve, reject) => {
       /**
-       * TODO
-       * @param this TODO
-       * @returns TODO
+       * Callback to be invoked following the retrieval of the file containing the HTML to load
+       * @param this the `XMLHttpRequest` instance that requested the HTML
        */
       const indexHtmlLoaded = function (this: XMLHttpRequest): void {
         if (this.status !== 200) {
@@ -127,42 +130,45 @@ export function setupDomTests(document: Document): DomTestUtilities {
         parseAndRebuildScriptTags();
 
         /**
-         * TODO
+         * Create a listener for Stencil's "appload" event to signal to the test framework the application and its
+         * children have finished loading
          */
-        const appLoad = () => {
-          window.removeEventListener('appload', appLoad);
+        const onAppLoad = () => {
+          window.removeEventListener('appload', onAppLoad);
           allReady().then(() => {
             resolve(testElement);
           });
         };
-        window.addEventListener('appload', appLoad);
+        window.addEventListener('appload', onAppLoad);
       };
 
       /**
-       * TODO
-       * @returns
+       * Ensure that all `onComponentReady` functions on Stencil elements in the DOM have been called before rendering
+       * @returns an array of promises, one for each `onComponentReady` found on a Stencil component
        */
-      const allReady = (): Promise<any[] | void> => {
-        const promises: Promise<any>[] = [];
+      const allReady = (): Promise<d.HTMLStencilElement[] | void> => {
+        const promises: Promise<d.HTMLStencilElement>[] = [];
 
         /**
-         * TODO
-         * @param promises
-         * @param elm
-         * @returns
+         * Function that recursively traverses the DOM, looking for Stencil components. Any `componentOnReady`
+         * functions found on Stencil components are pushed to a buffer to be run after traversing the entire DOM.
+         * @param promises the buffer of promises to add instances of `componentOnReady` to
+         * @param elm the current element being inspected
          */
         const waitForDidLoad = (promises: Promise<any>[], elm: Element): void => {
           if (elm != null && elm.nodeType === 1) {
+            // the element exists and is an `ELEMENT_NODE`
             for (let i = 0; i < elm.children.length; i++) {
               const childElm = elm.children[i];
-              if (childElm.tagName.includes('-') && typeof (childElm as any).componentOnReady === 'function') {
-                promises.push((childElm as any).componentOnReady());
+              if (childElm.tagName.includes('-') && isHtmlStencilElement(childElm)) {
+                promises.push(childElm.componentOnReady());
               }
               waitForDidLoad(promises, childElm);
             }
           }
         };
 
+        // recursively walk the DOM to find all `onComponentReady` functions
         waitForDidLoad(promises, window.document.documentElement);
 
         return Promise.all(promises).catch((e) => console.error(e));
@@ -194,4 +200,20 @@ export function setupDomTests(document: Document): DomTestUtilities {
   }
 
   return { setupDom, tearDownDom };
+}
+
+/**
+ * Type guard to verify some entity is an instance of Stencil HTML Element
+ * @param elm the entity to test
+ * @returns `true` if the entity is a Stencil HTML Element, `false` otherwise
+ */
+function isHtmlStencilElement(elm: unknown): elm is d.HTMLStencilElement {
+  // `hasOwnProperty` does not act as a type guard/narrow `elm` in any way, so we use an assertion to verify that
+  // `onComponentReady` is a function
+  return (
+    elm != null &&
+    typeof elm === 'object' &&
+    elm.hasOwnProperty('onComponentReady') &&
+    typeof (elm as any).onComponentReady === 'function'
+  );
 }
