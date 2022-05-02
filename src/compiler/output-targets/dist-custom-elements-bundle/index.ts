@@ -66,6 +66,13 @@ const bundleCustomElements = async (
       preserveEntrySignatures: 'allow-extension',
     };
 
+    console.log('dist-custom-elements-bundle bundleOpts')
+    console.log(bundleOpts);
+    await compilerCtx.fs.writeFile(
+      "dist-custom-elements-bundle.json",
+      JSON.stringify(bundleOpts)
+    )
+
     const build = await bundleOutput(config, compilerCtx, buildCtx, bundleOpts);
     if (build) {
       const rollupOutput = await build.generate({
@@ -147,6 +154,7 @@ const generateEntryPoint = (outputTarget: d.OutputTargetDistCustomElementsBundle
     exportNames.push(exportName);
   });
 
+  exp.push("// test test test");
   exp.push(`export const defineCustomElements = (opts) => {`);
   exp.push(`    if (typeof customElements !== 'undefined') {`);
   exp.push(`        [`);

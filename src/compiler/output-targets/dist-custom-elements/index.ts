@@ -61,13 +61,20 @@ const bundleCustomElements = async (
         index: '\0core',
       },
       loader: {
-        '\0core': generateEntryPoint(outputTarget),
+        '\0core': generateEntryPoint(outputTarget, buildCtx),
       },
       inlineDynamicImports: outputTarget.inlineDynamicImports,
       preserveEntrySignatures: 'allow-extension',
     };
 
     addCustomElementInputs(buildCtx, bundleOpts);
+
+    console.log('dist-custom-elements bundleOpts')
+    console.log(bundleOpts);
+    await compilerCtx.fs.writeFile(
+      "dist-custom-elements.json",
+      JSON.stringify(bundleOpts)
+    )
 
     const build = await bundleOutput(config, compilerCtx, buildCtx, bundleOpts);
     if (build) {
@@ -127,6 +134,8 @@ const bundleCustomElements = async (
  */
 const addCustomElementInputs = (buildCtx: d.BuildCtx, bundleOpts: BundleOptions): void => {
   const components = buildCtx.components;
+  const indexImps: string[] = [];
+
   components.forEach((cmp) => {
     const exp: string[] = [];
     const exportName = dashToPascalCase(cmp.tagName);
@@ -134,8 +143,10 @@ const addCustomElementInputs = (buildCtx: d.BuildCtx, bundleOpts: BundleOptions)
     const importAs = `$Cmp${exportName}`;
     const coreKey = `\0${exportName}`;
 
+    // exp.push(`export { ${importName} as ${exportName} } from '${cmp.sourceFilePath}';`);
     if (cmp.isPlain) {
       exp.push(`export { ${importName} as ${exportName} } from '${cmp.sourceFilePath}';`);
+      indexImps.push(`export { ${importName} as ${exportName} } from '${cmp.sourceFilePath}';`);
     } else {
       // the `importName` may collide with the `exportName`, alias it just in case it does with `importAs`
       exp.push(
@@ -143,36 +154,61 @@ const addCustomElementInputs = (buildCtx: d.BuildCtx, bundleOpts: BundleOptions)
       );
       exp.push(`export const ${exportName} = ${importAs};`);
       exp.push(`export const defineCustomElement = cmpDefCustomEle;`);
+
+      indexImps.push(
+        `import { ${importName} as ${importAs}, defineCustomElement as cmpDefCustomEle${exportName} } from '${cmp.sourceFilePath}';`
+      );
+      indexImps.push(`export const ${exportName} = ${importAs};`);
+      indexImps.push(`export const defineCustomElement${exportName} = cmpDefCustomEle${exportName};`);
+
     }
+
+    exp.push('// argh')
 
     bundleOpts.inputs[cmp.tagName] = coreKey;
     bundleOpts.loader[coreKey] = exp.join('\n');
   });
+
+  bundleOpts.loader["\0core"] += indexImps.join("\n")
+
+  console.log('here');
+  console.log(bundleOpts.loader["\0core"]);
 };
 
 /**
  * Generate the entrypoint (`index.ts` file) contents for the `dist-custom-elements` output target
  * @param outputTarget the output target's configuration
+ * @param buildCtx build context for the current compilation run
  * @returns the stringified contents to be placed in the entrypoint
  */
-const generateEntryPoint = (outputTarget: d.OutputTargetDistCustomElements): string => {
-  const imp: string[] = [];
+ // @ts-ignore
+const generateEntryPoint = (outputTarget: d.OutputTargetDistCustomElements, buildCtx: d.BuildCtx): string => {
+  const lines: string[] = [];
 
-  imp.push(
+  lines.push("// first test line")
+
+  lines.push(
     `export { setAssetPath, setPlatformOptions } from '${STENCIL_INTERNAL_CLIENT_ID}';`,
     `export * from '${USER_INDEX_ENTRY_ID}';`
   );
 
-  if (outputTarget.includeGlobalScripts !== false) {
-    imp.push(`import { globalScripts } from '${STENCIL_APP_GLOBALS_ID}';`, `globalScripts();`);
-  }
+  // if (outputTarget.includeGlobalScripts !== false) {
+    lines.push(`import { globalScripts } from '${STENCIL_APP_GLOBALS_ID}';`, `globalScripts();`);
+  // }
 
-  return imp.join('\n') + '\n';
+  buildCtx.components.forEach(component => {
+    lines.push(`// ${component.tagName} TEST`)
+  })
+
+  lines.push("// TEST TEST TEST")
+
+  return lines.join('\n') + '\n';
 };
 
 /**
  * Get the series of custom transformers that will be applied to a Stencil project's source code during the TypeScript
  * transpilation process
+ *
  * @param config the configuration for the Stencil project
  * @param compilerCtx the current compiler context
  * @param components the components that will be compiled as a part of the current build
