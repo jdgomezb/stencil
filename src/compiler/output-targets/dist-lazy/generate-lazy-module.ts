@@ -10,6 +10,7 @@ import {
 import { optimizeModule } from '../../optimize/optimize-module';
 import { join } from 'path';
 import type { SourceMap as RollupSourceMap } from 'rollup';
+import * as ts from 'typescript';
 
 export const generateLazyModules = async (
   config: d.Config,
@@ -49,7 +50,7 @@ export const generateLazyModules = async (
     ),
   ]);
   if (!isBrowserBuild) {
-    addStaticImports(results, bundleModules);
+    addStaticImports(rollupResults, bundleModules);
   }
 
   await Promise.all(
@@ -103,20 +104,26 @@ export const generateLazyModules = async (
 };
 
 /**
+ * TODO
+ * @param
+ * @returns
+ */
+function isStencilCoreFile(res: d.RollupChunkResult): boolean {
+  return res.isCore &&
+    res.entryKey === 'index' &&
+    (res.moduleFormat === 'es' ||
+      res.moduleFormat === 'esm' ||
+      res.moduleFormat === 'cjs' ||
+      res.moduleFormat === 'commonjs');
+}
+
+/**
  *
  */
-const addStaticImports = (results: d.RollupResult[], bundleModules: d.BundleModule[]) => {
+const addStaticImports = (results: d.RollupChunkResult[], bundleModules: d.BundleModule[]): void => {
   results.forEach((result) => console.log(result));
   results
-    .filter(
-      (res: d.RollupChunkResult) =>
-        res.isCore &&
-        res.entryKey === 'index' &&
-        (res.moduleFormat === 'es' ||
-          res.moduleFormat === 'esm' ||
-          res.moduleFormat === 'cjs' ||
-          res.moduleFormat === 'commonjs')
-    )
+    .filter(isStencilCoreFile)
     .forEach((index: d.RollupChunkResult) => {
       let caseStatement = `
       case '{COMPONENT_ENTRY}':
@@ -124,6 +131,24 @@ const addStaticImports = (results: d.RollupResult[], bundleModules: d.BundleModu
           /* webpackMode: "lazy" */
           './{COMPONENT_ENTRY}.entry.js').then(processMod, consoleError);
       `;
+      ts.factory.createCaseClause(
+        ts.factory.createStringLiteral("{COMPONENT_ENTRY}"),
+        [ts.factory.createReturnStatement(ts.factory.createCallExpression(
+          ts.factory.createPropertyAccessExpression(
+            ts.factory.createCallExpression(
+              ts.factory.createToken(ts.SyntaxKind.ImportKeyword),
+              undefined,
+              [ts.factory.createStringLiteral("./{COMPONENT_ENTRY}.entry.js")]
+            ),
+            ts.factory.createIdentifier("then")
+          ),
+          undefined,
+          [
+            ts.factory.createIdentifier("processMod"),
+            ts.factory.createIdentifier("consoleError")
+          ]
+        ))]
+      )
       if (index.moduleFormat === 'cjs' || index.moduleFormat === 'commonjs') {
         caseStatement = `
         case '{COMPONENT_ENTRY}':
@@ -131,6 +156,7 @@ const addStaticImports = (results: d.RollupResult[], bundleModules: d.BundleModu
             /* webpackMode: "lazy" */
             './{COMPONENT_ENTRY}.entry.js')); }).then(processMod, consoleError);
       `;
+
       }
       const switchStr = bundleModules.map((mod) => {
         return caseStatement.replace(/\{COMPONENT_ENTRY\}/g, mod.output.bundleId);
