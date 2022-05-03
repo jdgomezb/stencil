@@ -102,8 +102,11 @@ export const generateLazyModules = async (
   return bundleModules;
 };
 
-// @ts-ignore
+/**
+ *
+ */
 const addStaticImports = (results: d.RollupResult[], bundleModules: d.BundleModule[]) => {
+  results.forEach((result) => console.log(result));
   results
     .filter(
       (res: d.RollupChunkResult) =>
