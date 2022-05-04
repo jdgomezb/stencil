@@ -10,7 +10,6 @@ import {
 import { optimizeModule } from '../../optimize/optimize-module';
 import { join } from 'path';
 import type { SourceMap as RollupSourceMap } from 'rollup';
-// import * as ts from 'typescript';
 
 export const generateLazyModules = async (
   config: d.Config,
@@ -49,7 +48,8 @@ export const generateLazyModules = async (
       })
     ),
   ]);
-  if (!isBrowserBuild) {
+
+  if (!!config.extras?.experimentalImportInjection && !isBrowserBuild) {
     addStaticImports(rollupResults, bundleModules);
   }
 
@@ -104,78 +104,77 @@ export const generateLazyModules = async (
 };
 
 /**
+ *
+ */
+const addStaticImports = (results: d.RollupChunkResult[], bundleModules: d.BundleModule[]): void => {
+  results.filter(isStencilCoreFile).forEach((index: d.RollupChunkResult) => {
+    index.code = index.code.replace(
+      '/*!__STENCIL_STATIC_IMPORT_SWITCH__*/',
+      `
+        if (!hmrVersionId || !BUILD.hotModuleReplacement) {
+          const processMod = importedModule => {
+              cmpModules.set(bundleId, importedModule);
+              return importedModule[exportName];
+          }
+          switch(bundleId) {
+              ${generateComponentImports(index, bundleModules).join('')}
+          }
+      }`
+    );
+  });
+};
+
+/**
  * TODO
  * @param
  * @returns
  */
 function isStencilCoreFile(res: d.RollupChunkResult): boolean {
-  return res.isCore &&
+  return (
+    res.isCore &&
     res.entryKey === 'index' &&
-    (res.moduleFormat === 'es' ||
-      res.moduleFormat === 'esm' ||
-      res.moduleFormat === 'cjs' ||
-      res.moduleFormat === 'commonjs');
+    (res.moduleFormat === 'es' || res.moduleFormat === 'esm' || isCjsFormat(res))
+  );
 }
 
 /**
  *
+ * @param index
+ * @returns
  */
-const addStaticImports = (results: d.RollupChunkResult[], bundleModules: d.BundleModule[]): void => {
-  results.forEach((result) => console.log(result));
-  results
-    .filter(isStencilCoreFile)
-    .forEach((index: d.RollupChunkResult) => {
-      let caseStatement = `
-      case '{COMPONENT_ENTRY}':
-        return import(
-          /* webpackMode: "lazy" */
-          './{COMPONENT_ENTRY}.entry.js').then(processMod, consoleError);
-      `;
-      // ts.factory.createCaseClause(
-      //   ts.factory.createStringLiteral("{COMPONENT_ENTRY}"),
-      //   [ts.factory.createReturnStatement(ts.factory.createCallExpression(
-      //     ts.factory.createPropertyAccessExpression(
-      //       ts.factory.createCallExpression(
-      //         ts.factory.createToken(ts.SyntaxKind.ImportKeyword),
-      //         undefined,
-      //         [ts.factory.createStringLiteral("./{COMPONENT_ENTRY}.entry.js")]
-      //       ),
-      //       ts.factory.createIdentifier("then")
-      //     ),
-      //     undefined,
-      //     [
-      //       ts.factory.createIdentifier("processMod"),
-      //       ts.factory.createIdentifier("consoleError")
-      //     ]
-      //   ))]
-      // )
-      if (index.moduleFormat === 'cjs' || index.moduleFormat === 'commonjs') {
-        caseStatement = `
-        case '{COMPONENT_ENTRY}':
-          return Promise.resolve().then(function () { return /*#__PURE__*/_interopNamespace(require(
-            /* webpackMode: "lazy" */
-            './{COMPONENT_ENTRY}.entry.js')); }).then(processMod, consoleError);
-      `;
+function isCjsFormat(index: d.RollupChunkResult): boolean {
+  return index.moduleFormat === 'cjs' || index.moduleFormat === 'commonjs';
+}
 
-      }
-      const switchStr = bundleModules.map((mod) => {
-        return caseStatement.replace(/\{COMPONENT_ENTRY\}/g, mod.output.bundleId);
-      });
-      index.code = index.code.replace(
-        '/*!__STENCIL_STATIC_IMPORT_SWITCH__*/',
-        `
-    if (!hmrVersionId || !BUILD.hotModuleReplacement) {
-      const processMod = importedModule => {
-        cmpModules.set(bundleId, importedModule);
-        return importedModule[exportName];
-      }
-      switch(bundleId) {
-        ${switchStr.join('')}
-      }
-    }`
-      );
-    });
-};
+/**
+ *
+ * @param index
+ * @param bundleModules
+ * @returns
+ */
+function generateComponentImports(index: d.RollupChunkResult, bundleModules: d.BundleModule[]): ReadonlyArray<string> {
+  return bundleModules.map((mod) => generateCaseClause(index, mod.output.bundleId));
+}
+
+/**
+ * TODO
+ * @param
+ * @param
+ * @returns
+ */
+function generateCaseClause(index: d.RollupChunkResult, COMPONENT_ENTRY: string): string {
+  return isCjsFormat(index)
+    ? `
+                case '${COMPONENT_ENTRY}':
+                    return Promise.resolve().then(function () { return /*#__PURE__*/_interopNamespace(require(
+                        /* webpackMode: "lazy" */
+                        './${COMPONENT_ENTRY}.entry.js')); }).then(processMod, consoleError);`
+    : `
+                case '${COMPONENT_ENTRY}':
+                    return import(
+                      /* webpackMode: "lazy" */
+                      './${COMPONENT_ENTRY}.entry.js').then(processMod, consoleError);`;
+}
 
 const generateLazyEntryModule = async (
   config: d.Config,

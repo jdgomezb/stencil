@@ -15,9 +15,7 @@ export const generateRollupOutput = async (
   const { output }: { output: [OutputChunk, ...(OutputChunk | OutputAsset)[]] } = await build.generate(options);
   return output.map((chunk: OutputChunk | OutputAsset) => {
     if (chunk.type === 'chunk') {
-      console.log(chunk.name)
       const isCore = Object.keys(chunk.modules).some((m) => m.includes('@stencil/core'));
-      console.log(Object.keys(chunk.modules));
       return {
         type: 'chunk',
         fileName: chunk.fileName,

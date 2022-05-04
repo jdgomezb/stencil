@@ -29,6 +29,7 @@ export function resetBuildConditionals(b: d.BuildConditionals) {
   b.vdomXlink = true;
   b.allRenderFn = false;
   b.devTools = false;
+  b.experimentalImportInjection = false;
   b.hydrateClientSide = false;
   b.hydrateServerSide = false;
   b.cssAnnotations = false;

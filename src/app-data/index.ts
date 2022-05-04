@@ -61,6 +61,7 @@ export const BUILD: BuildConditionals = {
   slotRelocation: true,
   appendChildSlotFix: false,
   cloneNodeFix: false,
+  experimentalImportInjection: false,
   hydratedAttribute: false,
   hydratedClass: true,
   safari10: false,

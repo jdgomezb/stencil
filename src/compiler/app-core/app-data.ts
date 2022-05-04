@@ -149,6 +149,7 @@ export const updateBuildConditionals = (config: Config, b: BuildConditionals) =>
   b.appendChildSlotFix = config.extras.appendChildSlotFix;
   b.slotChildNodesFix = config.extras.slotChildNodesFix;
   b.cloneNodeFix = config.extras.cloneNodeFix;
+  b.experimentalImportInjection = !!config.extras?.experimentalImportInjection;
   b.dynamicImportShim = config.extras.dynamicImportShim;
   b.lifecycleDOMEvents = !!(b.isDebug || config._isTesting || config.extras.lifecycleDOMEvents);
   b.safari10 = config.extras.safari10;

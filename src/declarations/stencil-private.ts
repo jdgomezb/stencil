@@ -178,6 +178,7 @@ export interface BuildConditionals extends Partial<BuildFeatures> {
   scopedSlotTextContentFix?: boolean;
   cloneNodeFix?: boolean;
   dynamicImportShim?: boolean;
+  experimentalImportInjection?: boolean;
   hydratedAttribute?: boolean;
   hydratedClass?: boolean;
   initializeNextTick?: boolean;
