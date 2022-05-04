@@ -10,7 +10,7 @@ import {
 import { optimizeModule } from '../../optimize/optimize-module';
 import { join } from 'path';
 import type { SourceMap as RollupSourceMap } from 'rollup';
-import ts from 'typescript';
+import * as ts from 'typescript';
 
 export const generateLazyModules = async (
   config: d.Config,
@@ -119,121 +119,47 @@ function isStencilCoreFile(res: d.RollupChunkResult): boolean {
 
 /**
  *
- * ```ts
- * case '{COMPONENT_ENTRY}':
- *   return import('./{COMPONENT_ENTRY}.entry.js').then(processMod, consoleError);
- * ```
- * @param str
- * @returns
- */
-function extracted(str: string): ts.CaseClause {
-  return ts.factory.createCaseClause(
-    ts.factory.createStringLiteral(str),
-    [ts.factory.createReturnStatement(ts.factory.createCallExpression(
-      ts.factory.createPropertyAccessExpression(
-        ts.factory.createCallExpression(
-          ts.factory.createToken(ts.SyntaxKind.ImportKeyword) as any, // TODO
-          undefined,
-          [ts.factory.createStringLiteral(`./${str}.entry.js`)],
-        ),
-        ts.factory.createIdentifier('then'),
-      ),
-      undefined,
-      [
-        ts.factory.createIdentifier('processMod'),
-        ts.factory.createIdentifier('consoleError'),
-      ],
-    ))],
-  );
-}
-
-/**
- * ```ts
- * case '{COMPONENT_ENTRY}':
- *   return Promise.resolve()
- *     .then(function () {
- *       return _interopNamespace(require('./{COMPONENT_ENTRY}.entry.js'));
- *     })
- *     .then(processMod, consoleError);
- * ```
- * @param str
- * @returns
- */
-function extracted2(str: string): ts.CaseClause {
-  return ts.factory.createCaseClause(
-    ts.factory.createStringLiteral(str),
-    [ts.factory.createReturnStatement(ts.factory.createCallExpression(
-      ts.factory.createPropertyAccessExpression(
-        ts.factory.createCallExpression(
-          ts.factory.createPropertyAccessExpression(
-            ts.factory.createCallExpression(
-              ts.factory.createPropertyAccessExpression(
-                ts.factory.createIdentifier("Promise"),
-                ts.factory.createIdentifier("resolve")
-              ),
-              undefined,
-              []
-            ),
-            ts.factory.createIdentifier("then")
-          ),
-          undefined,
-          [ts.factory.createFunctionExpression(
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            [],
-            undefined,
-            ts.factory.createBlock(
-              [ts.factory.createReturnStatement(ts.factory.createCallExpression(
-                ts.factory.createIdentifier("_interopNamespace"),
-                undefined,
-                [ts.factory.createCallExpression(
-                  ts.factory.createIdentifier("require"),
-                  undefined,
-                  [ts.factory.createStringLiteral(`./${str}.entry.js`)]
-                )]
-              ))],
-              false
-            )
-          )]
-        ),
-        ts.factory.createIdentifier("then")
-      ),
-      undefined,
-      [
-        ts.factory.createIdentifier("processMod"),
-        ts.factory.createIdentifier("consoleError")
-      ]
-    ))]
-  )
-}
-/**
- *
  */
 const addStaticImports = (results: d.RollupChunkResult[], bundleModules: d.BundleModule[]): void => {
   results.forEach((result) => console.log(result));
   results
     .filter(isStencilCoreFile)
     .forEach((index: d.RollupChunkResult) => {
-      // TODO: Leading trivia
-      // let caseStatement = `
-      // case '{COMPONENT_ENTRY}':
-      //   return import(
-      //     /* webpackMode: "lazy" */
-      //     './{COMPONENT_ENTRY}.entry.js').then(processMod, consoleError);
-      // `;
-      //   caseStatement = `
-      //   case '{COMPONENT_ENTRY}':
-      //     return Promise.resolve().then(function () { return /*#__PURE__*/_interopNamespace(require(
-      //       /* webpackMode: "lazy" */
-      //       './{COMPONENT_ENTRY}.entry.js')); }).then(processMod, consoleError);
-      // `;
+      let caseStatement = `
+      case '{COMPONENT_ENTRY}':
+        return import(
+          /* webpackMode: "lazy" */
+          './{COMPONENT_ENTRY}.entry.js').then(processMod, consoleError);
+      `;
+      ts.factory.createCaseClause(
+        ts.factory.createStringLiteral("{COMPONENT_ENTRY}"),
+        [ts.factory.createReturnStatement(ts.factory.createCallExpression(
+          ts.factory.createPropertyAccessExpression(
+            ts.factory.createCallExpression(
+              ts.factory.createToken(ts.SyntaxKind.ImportKeyword),
+              undefined,
+              [ts.factory.createStringLiteral("./{COMPONENT_ENTRY}.entry.js")]
+            ),
+            ts.factory.createIdentifier("then")
+          ),
+          undefined,
+          [
+            ts.factory.createIdentifier("processMod"),
+            ts.factory.createIdentifier("consoleError")
+          ]
+        ))]
+      )
+      if (index.moduleFormat === 'cjs' || index.moduleFormat === 'commonjs') {
+        caseStatement = `
+        case '{COMPONENT_ENTRY}':
+          return Promise.resolve().then(function () { return /*#__PURE__*/_interopNamespace(require(
+            /* webpackMode: "lazy" */
+            './{COMPONENT_ENTRY}.entry.js')); }).then(processMod, consoleError);
+      `;
 
-      // }
-      const caseClauses: ReadonlyArray<ts.CaseClause> = bundleModules.map((mod) => {
-        const { bundleId } = mod.output;
-        return (index.moduleFormat === 'cjs' || index.moduleFormat === 'commonjs') ? extracted2(bundleId) : extracted(bundleId);
+      }
+      const switchStr = bundleModules.map((mod) => {
+        return caseStatement.replace(/\{COMPONENT_ENTRY\}/g, mod.output.bundleId);
       });
       index.code = index.code.replace(
         '/*!__STENCIL_STATIC_IMPORT_SWITCH__*/',
@@ -244,7 +170,7 @@ const addStaticImports = (results: d.RollupChunkResult[], bundleModules: d.Bundl
         return importedModule[exportName];
       }
       switch(bundleId) {
-        ${caseClauses.map((caseClause: ts.CaseClause) => caseClause.getSourceFile()).join('\n')}
+        ${switchStr.join('')}
       }
     }`
       );
