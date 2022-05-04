@@ -10,7 +10,7 @@ import {
 import { optimizeModule } from '../../optimize/optimize-module';
 import { join } from 'path';
 import type { SourceMap as RollupSourceMap } from 'rollup';
-import * as ts from 'typescript';
+// import * as ts from 'typescript';
 
 export const generateLazyModules = async (
   config: d.Config,
@@ -131,24 +131,24 @@ const addStaticImports = (results: d.RollupChunkResult[], bundleModules: d.Bundl
           /* webpackMode: "lazy" */
           './{COMPONENT_ENTRY}.entry.js').then(processMod, consoleError);
       `;
-      ts.factory.createCaseClause(
-        ts.factory.createStringLiteral("{COMPONENT_ENTRY}"),
-        [ts.factory.createReturnStatement(ts.factory.createCallExpression(
-          ts.factory.createPropertyAccessExpression(
-            ts.factory.createCallExpression(
-              ts.factory.createToken(ts.SyntaxKind.ImportKeyword),
-              undefined,
-              [ts.factory.createStringLiteral("./{COMPONENT_ENTRY}.entry.js")]
-            ),
-            ts.factory.createIdentifier("then")
-          ),
-          undefined,
-          [
-            ts.factory.createIdentifier("processMod"),
-            ts.factory.createIdentifier("consoleError")
-          ]
-        ))]
-      )
+      // ts.factory.createCaseClause(
+      //   ts.factory.createStringLiteral("{COMPONENT_ENTRY}"),
+      //   [ts.factory.createReturnStatement(ts.factory.createCallExpression(
+      //     ts.factory.createPropertyAccessExpression(
+      //       ts.factory.createCallExpression(
+      //         ts.factory.createToken(ts.SyntaxKind.ImportKeyword),
+      //         undefined,
+      //         [ts.factory.createStringLiteral("./{COMPONENT_ENTRY}.entry.js")]
+      //       ),
+      //       ts.factory.createIdentifier("then")
+      //     ),
+      //     undefined,
+      //     [
+      //       ts.factory.createIdentifier("processMod"),
+      //       ts.factory.createIdentifier("consoleError")
+      //     ]
+      //   ))]
+      // )
       if (index.moduleFormat === 'cjs' || index.moduleFormat === 'commonjs') {
         caseStatement = `
         case '{COMPONENT_ENTRY}':
