@@ -8,6 +8,7 @@ import { MockWindow } from '@stencil/core/mock-doc';
 import { TestingLogger } from './testing-logger';
 import path from 'path';
 import { noop } from '@utils';
+import {buildEvents} from '../compiler/events';
 
 export function mockConfig(sys?: CompilerSystem) {
   const rootDir = path.resolve('/');
@@ -74,7 +75,7 @@ export function mockCompilerCtx(config?: Config) {
     compilerOptions: null,
     cache: null,
     cssModuleImports: new Map(),
-    events: null,
+    events: buildEvents(),
     fs: null,
     hasSuccessfulBuild: false,
     isActivelyBuilding: false,
