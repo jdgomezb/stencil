@@ -62,7 +62,7 @@ export const createTestingSystem = (): TestingSystem => {
   sys.writeFile = wrapWrite(sys.writeFile);
   sys.writeFileSync = wrapWrite(sys.writeFileSync);
 
-  sys.getCompilerExecutingPath = () => '/Users/me/node_modules/stencil/compiler/stencil.js';
+  sys.getCompilerExecutingPath = () => 'bin/stencil.js';
 
   Object.defineProperties(sys, {
     diskReads: {
