@@ -1,4 +1,4 @@
-import type { BuildCtx, Cache, CompilerCtx, CompilerSystem, Config } from '@stencil/core/internal';
+import type { BuildCtx, Cache, CompilerCtx, CompilerSystem, Config, Module } from '@stencil/core/internal';
 import { BuildContext } from '../compiler/build/build-ctx';
 import { Cache as CompilerCache } from '../compiler/cache';
 import { createInMemoryFs } from '../compiler/sys/in-memory-fs';
@@ -113,7 +113,7 @@ export function mockCompilerCtx(config?: Config) {
   return compilerCtx;
 }
 
-export function mockBuildCtx(config?: Config, compilerCtx?: CompilerCtx) {
+export function mockBuildCtx(config?: Config, compilerCtx?: CompilerCtx): BuildCtx {
   if (!config) {
     config = mockConfig();
   }
@@ -154,4 +154,44 @@ export function mockDocument(html: string = null) {
 export function mockWindow(html: string = null) {
   const win = new MockWindow(html);
   return win as any as Window;
+}
+
+export function mockModule(mod: Partial<Module> = {}): Module {
+  return {
+  cmps: [],
+  coreRuntimeApis: [],
+  collectionName: "",
+  dtsFilePath: "",
+  excludeFromCollection: false,
+  externalImports: [],
+  htmlAttrNames: [],
+  htmlTagNames: [],
+  htmlParts: [],
+  isCollectionDependency: false,
+  isLegacy: false,
+  jsFilePath: "",
+  localImports: [],
+  originalImports: [],
+  originalCollectionComponentPath: "",
+  potentialCmpRefs: [],
+  sourceFilePath: "",
+  staticSourceFile: "",
+  staticSourceFileText: "",
+  sourceMapPath: "",
+  sourceMapFileText: "",
+
+  // build features
+  hasVdomAttribute: false,
+  hasVdomClass: false,
+  hasVdomFunctional: false,
+  hasVdomKey: false,
+  hasVdomListener: false,
+  hasVdomPropOrAttr: false,
+  hasVdomRef: false,
+  hasVdomRender: false,
+  hasVdomStyle: false,
+  hasVdomText: false,
+  hasVdomXlink: false,
+  ...mod
+  }
 }
