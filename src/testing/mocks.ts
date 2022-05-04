@@ -44,6 +44,10 @@ export function mockConfig(sys?: CompilerSystem) {
       customResolveOptions: {},
     },
     sourceMap: true,
+    rollupPlugins: {
+      before: [],
+      after: []
+    }
   };
 
   return config;
