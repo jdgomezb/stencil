@@ -150,7 +150,7 @@ export const bundleCustomElements = async (
  */
 export const addCustomElementInputs = (buildCtx: d.BuildCtx, bundleOpts: BundleOptions): void => {
   const components = buildCtx.components;
-  const indexImps: string[] = [];
+  // const indexImps: string[] = [];
 
   components.forEach((cmp) => {
     const exp: string[] = [];
@@ -162,7 +162,7 @@ export const addCustomElementInputs = (buildCtx: d.BuildCtx, bundleOpts: BundleO
     // exp.push(`export { ${importName} as ${exportName} } from '${cmp.sourceFilePath}';`);
     if (cmp.isPlain) {
       exp.push(`export { ${importName} as ${exportName} } from '${cmp.sourceFilePath}';`);
-      indexImps.push(`export { ${importName} as ${exportName} } from '${cmp.sourceFilePath}';`);
+      // indexImps.push(`export { ${importName} as ${exportName} } from '${cmp.sourceFilePath}';`);
     } else {
       // the `importName` may collide with the `exportName`, alias it just in case it does with `importAs`
       exp.push(
@@ -171,18 +171,18 @@ export const addCustomElementInputs = (buildCtx: d.BuildCtx, bundleOpts: BundleO
       exp.push(`export const ${exportName} = ${importAs};`);
       exp.push(`export const defineCustomElement = cmpDefCustomEle;`);
 
-      indexImps.push(
-        `import { ${importName} as ${importAs}, defineCustomElement as cmpDefCustomEle${exportName} } from '${cmp.sourceFilePath}';`
-      );
-      indexImps.push(`export const ${exportName} = ${importAs};`);
-      indexImps.push(`export const defineCustomElement${exportName} = cmpDefCustomEle${exportName};`);
+      // indexImps.push(
+      //   `import { ${importName} as ${importAs}, defineCustomElement as cmpDefCustomEle${exportName} } from '${cmp.sourceFilePath}';`
+      // );
+      // indexImps.push(`export const ${exportName} = ${importAs};`);
+      // indexImps.push(`export const defineCustomElement${exportName} = cmpDefCustomEle${exportName};`);
     }
 
     bundleOpts.inputs[cmp.tagName] = coreKey;
     bundleOpts.loader[coreKey] = exp.join('\n');
   });
 
-  bundleOpts.loader['\0core'] += indexImps.join('\n');
+  // bundleOpts.loader['\0core'] += indexImps.join('\n');
 };
 
 /**
@@ -193,7 +193,6 @@ export const addCustomElementInputs = (buildCtx: d.BuildCtx, bundleOpts: BundleO
  */
 export const generateEntryPoint = (outputTarget: d.OutputTargetDistCustomElements, buildCtx: d.BuildCtx): string => {
   const imp: string[] = [];
-  const exp: string[] = [];
 
   imp.push(
     `export { setAssetPath, setPlatformOptions } from '${STENCIL_INTERNAL_CLIENT_ID}';`,
@@ -204,7 +203,7 @@ export const generateEntryPoint = (outputTarget: d.OutputTargetDistCustomElement
     imp.push(`import { globalScripts } from '${STENCIL_APP_GLOBALS_ID}';`, `globalScripts();`);
   }
 
-  return [...imp, ...exp].join('\n') + '\n';
+  return imp.join('\n') + '\n';
 };
 
 /**
