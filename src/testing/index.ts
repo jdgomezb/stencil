@@ -11,7 +11,7 @@ export {
   mockLogger,
   mockStencilSystem,
   mockWindow,
-  mockModule
+  mockModule,
 } from './mocks';
 export {
   MockHeaders,

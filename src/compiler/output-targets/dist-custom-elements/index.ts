@@ -4,10 +4,12 @@ import { bundleOutput } from '../../bundle/bundle-output';
 import {
   catchError,
   dashToPascalCase,
+  formatComponentRuntimeMeta,
   generatePreamble,
   getSourceMappingUrlForEndOfFile,
   hasError,
   rollupToStencilSourceMap,
+  stringifyRuntimeData,
 } from '@utils';
 import { getCustomElementsBuildConditionals } from '../dist-custom-elements-bundle/custom-elements-build-conditionals';
 import { isOutputTargetDistCustomElements } from '../output-utils';
@@ -52,6 +54,32 @@ export const outputCustomElements = async (
   timespan.finish(`${bundlingEventMessage} finished`);
 };
 
+export const getBundleOptions = (
+  config: d.Config,
+  buildCtx: d.BuildCtx,
+  compilerCtx: d.CompilerCtx,
+  outputTarget: d.OutputTargetDistCustomElements
+): BundleOptions => {
+  const bundleOpts: BundleOptions = {
+    id: 'customElements',
+    platform: 'client',
+    conditionals: getCustomElementsBuildConditionals(config, buildCtx.components),
+    customTransformers: getCustomElementCustomTransformer(config, compilerCtx, buildCtx.components, outputTarget),
+    externalRuntime: !!outputTarget.externalRuntime,
+    inlineWorkers: true,
+    inputs: {
+      index: '\0core',
+    },
+    loader: {
+      '\0core': generateEntryPoint(outputTarget, buildCtx),
+    },
+    inlineDynamicImports: outputTarget.inlineDynamicImports,
+    preserveEntrySignatures: 'allow-extension',
+  };
+
+  return bundleOpts;
+};
+
 export const bundleCustomElements = async (
   config: d.Config,
   compilerCtx: d.CompilerCtx,
@@ -59,22 +87,7 @@ export const bundleCustomElements = async (
   outputTarget: d.OutputTargetDistCustomElements
 ) => {
   try {
-    const bundleOpts: BundleOptions = {
-      id: 'customElements',
-      platform: 'client',
-      conditionals: getCustomElementsBuildConditionals(config, buildCtx.components),
-      customTransformers: getCustomElementCustomTransformer(config, compilerCtx, buildCtx.components, outputTarget),
-      externalRuntime: !!outputTarget.externalRuntime,
-      inlineWorkers: true,
-      inputs: {
-        index: '\0core',
-      },
-      loader: {
-        '\0core': generateEntryPoint(outputTarget, buildCtx),
-      },
-      inlineDynamicImports: outputTarget.inlineDynamicImports,
-      preserveEntrySignatures: 'allow-extension',
-    };
+    const bundleOpts = getBundleOptions(config, buildCtx, compilerCtx, outputTarget);
 
     addCustomElementInputs(buildCtx, bundleOpts);
 
@@ -163,16 +176,13 @@ export const addCustomElementInputs = (buildCtx: d.BuildCtx, bundleOpts: BundleO
       );
       indexImps.push(`export const ${exportName} = ${importAs};`);
       indexImps.push(`export const defineCustomElement${exportName} = cmpDefCustomEle${exportName};`);
-
     }
-
-    exp.push('// argh')
 
     bundleOpts.inputs[cmp.tagName] = coreKey;
     bundleOpts.loader[coreKey] = exp.join('\n');
   });
 
-  bundleOpts.loader["\0core"] += indexImps.join("\n")
+  bundleOpts.loader['\0core'] += indexImps.join('\n');
 };
 
 /**
@@ -183,6 +193,7 @@ export const addCustomElementInputs = (buildCtx: d.BuildCtx, bundleOpts: BundleO
  */
 export const generateEntryPoint = (outputTarget: d.OutputTargetDistCustomElements, buildCtx: d.BuildCtx): string => {
   const imp: string[] = [];
+  const exp: string[] = [];
 
   imp.push(
     `export { setAssetPath, setPlatformOptions } from '${STENCIL_INTERNAL_CLIENT_ID}';`,
@@ -193,11 +204,7 @@ export const generateEntryPoint = (outputTarget: d.OutputTargetDistCustomElement
     imp.push(`import { globalScripts } from '${STENCIL_APP_GLOBALS_ID}';`, `globalScripts();`);
   }
 
-  buildCtx.components.forEach(component => {
-    imp.push(`// ${component.tagName} TEST`)
-  })
-
-  return imp.join('\n') + '\n';
+  return [...imp, ...exp].join('\n') + '\n';
 };
 
 /**

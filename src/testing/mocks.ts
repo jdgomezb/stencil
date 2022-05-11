@@ -8,7 +8,7 @@ import { MockWindow } from '@stencil/core/mock-doc';
 import { TestingLogger } from './testing-logger';
 import path from 'path';
 import { noop } from '@utils';
-import {buildEvents} from '../compiler/events';
+import { buildEvents } from '../compiler/events';
 
 export function mockConfig(sys?: CompilerSystem) {
   const rootDir = path.resolve('/');
@@ -47,8 +47,8 @@ export function mockConfig(sys?: CompilerSystem) {
     sourceMap: true,
     rollupPlugins: {
       before: [],
-      after: []
-    }
+      after: [],
+    },
   };
 
   return config;
@@ -158,40 +158,40 @@ export function mockWindow(html: string = null) {
 
 export function mockModule(mod: Partial<Module> = {}): Module {
   return {
-  cmps: [],
-  coreRuntimeApis: [],
-  collectionName: "",
-  dtsFilePath: "",
-  excludeFromCollection: false,
-  externalImports: [],
-  htmlAttrNames: [],
-  htmlTagNames: [],
-  htmlParts: [],
-  isCollectionDependency: false,
-  isLegacy: false,
-  jsFilePath: "",
-  localImports: [],
-  originalImports: [],
-  originalCollectionComponentPath: "",
-  potentialCmpRefs: [],
-  sourceFilePath: "",
-  staticSourceFile: "",
-  staticSourceFileText: "",
-  sourceMapPath: "",
-  sourceMapFileText: "",
+    cmps: [],
+    coreRuntimeApis: [],
+    collectionName: '',
+    dtsFilePath: '',
+    excludeFromCollection: false,
+    externalImports: [],
+    htmlAttrNames: [],
+    htmlTagNames: [],
+    htmlParts: [],
+    isCollectionDependency: false,
+    isLegacy: false,
+    jsFilePath: '',
+    localImports: [],
+    originalImports: [],
+    originalCollectionComponentPath: '',
+    potentialCmpRefs: [],
+    sourceFilePath: '',
+    staticSourceFile: '',
+    staticSourceFileText: '',
+    sourceMapPath: '',
+    sourceMapFileText: '',
 
-  // build features
-  hasVdomAttribute: false,
-  hasVdomClass: false,
-  hasVdomFunctional: false,
-  hasVdomKey: false,
-  hasVdomListener: false,
-  hasVdomPropOrAttr: false,
-  hasVdomRef: false,
-  hasVdomRender: false,
-  hasVdomStyle: false,
-  hasVdomText: false,
-  hasVdomXlink: false,
-  ...mod
-  }
+    // build features
+    hasVdomAttribute: false,
+    hasVdomClass: false,
+    hasVdomFunctional: false,
+    hasVdomKey: false,
+    hasVdomListener: false,
+    hasVdomPropOrAttr: false,
+    hasVdomRef: false,
+    hasVdomRender: false,
+    hasVdomStyle: false,
+    hasVdomText: false,
+    hasVdomXlink: false,
+    ...mod,
+  };
 }

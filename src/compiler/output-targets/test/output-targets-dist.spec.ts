@@ -57,8 +57,8 @@ xdescribe('outputTarget, dist', () => {
       )]: `export default function() { console.log('my global'); }`,
     };
     Object.entries(files).forEach(([path, contents]) => {
-      compiler.sys.writeFileSync(path, contents)
-    })
+      compiler.sys.writeFileSync(path, contents);
+    });
 
     console.log('1');
     const r = await compiler.build();
