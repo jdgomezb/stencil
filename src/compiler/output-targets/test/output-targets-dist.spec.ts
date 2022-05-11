@@ -1,16 +1,19 @@
 import { doNotExpectFiles, expectFiles } from '../../../testing/testing-utils';
-import { Compiler, Config } from '@stencil/core/compiler';
-import { mockConfig } from '@stencil/core/testing';
-import path from 'path';
+import type * as d from '../../../declarations';
+import { createCompiler, path } from '@stencil/core/compiler';
+import { mockConfig, mockStencilSystem } from '@stencil/core/testing';
 
 xdescribe('outputTarget, dist', () => {
   jest.setTimeout(20000);
-  let compiler: Compiler;
-  let config: Config;
+  let compiler: d.Compiler;
+  let config: d.Config;
   const root = path.resolve('/');
 
-  it('default dist files', async () => {
-    config = mockConfig();
+  const setup = async () => {
+    const sys = mockStencilSystem();
+    const config: d.Config = mockConfig(sys);
+    config.configPath = '/testing-path';
+    config.srcDir = '/src';
     config.buildAppCore = true;
     config.rootDir = path.join(root, 'User', 'testing', '/');
     config.namespace = 'TestApp';
@@ -18,10 +21,16 @@ xdescribe('outputTarget, dist', () => {
     config.globalScript = path.join(root, 'User', 'testing', 'src', 'global.ts');
     config.outputTargets = [{ type: 'dist' }];
 
-    compiler = new Compiler(config);
+    const compiler = await createCompiler(config);
 
-    await compiler.fs.writeFiles({
-      [path.join(config.sys.getClientPath('polyfills/index.js'))]: `/* polyfills */`,
+    return { config, compiler };
+  };
+
+  it.only('default dist files', async () => {
+    const { compiler, config } = await setup();
+
+    let files = {
+      [path.join(config.rootDir, 'polyfills/index.js')]: `/* polyfills */`,
       [path.join(root, 'User', 'testing', 'package.json')]: `{
         "module": "dist/index.mjs",
         "main": "dist/index.js",
@@ -46,13 +55,17 @@ xdescribe('outputTarget, dist', () => {
         'src',
         'global.ts'
       )]: `export default function() { console.log('my global'); }`,
-    });
-    await compiler.fs.commit();
+    };
+    Object.entries(files).forEach(([path, contents]) => {
+      compiler.sys.writeFileSync(path, contents)
+    })
 
+    console.log('1');
     const r = await compiler.build();
-    expect(r.diagnostics).toHaveLength(0);
+    console.log('get here');
+    // expect(r.diagnostics).toHaveLength(0);
 
-    expectFiles(compiler.fs, [
+    expectFiles(compiler.sys, [
       path.join(root, 'User', 'testing', 'dist', 'index.js'),
       path.join(root, 'User', 'testing', 'dist', 'index.mjs'),
       path.join(root, 'User', 'testing', 'dist', 'index.js.map'),
