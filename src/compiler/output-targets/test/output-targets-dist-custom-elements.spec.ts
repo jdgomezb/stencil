@@ -52,8 +52,12 @@ describe('Custom Elements output target', () => {
     const retVal = await outputCustomElements(config, compilerCtx, buildCtx);
   });
 
+  describe('generateEntryPoint', () => {
+    
+  });
+
   describe('addCustomElementInputs', () => {
-    it('should add imports for the components', () => {
+    it('should add inputs, loader entries for components', () => {
       const { config, compilerCtx, buildCtx, bundleCustomElementsSpy } = setup();
       const bundleOptions = getBundleOptions(config, buildCtx, compilerCtx, config.outputTargets[0]);
       addCustomElementInputs(buildCtx, bundleOptions);
