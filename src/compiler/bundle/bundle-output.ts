@@ -12,7 +12,7 @@ import { lazyComponentPlugin } from '../output-targets/dist-lazy/lazy-component-
 import { loaderPlugin } from './loader-plugin';
 import { pluginHelper } from './plugin-helper';
 import { resolveIdWithTypeScript, typescriptPlugin } from './typescript-plugin';
-import { rollupCommonjsPlugin, rollupJsonPlugin, rollupNodeResolvePlugin, rollupReplacePlugin } from '@compiler-deps';
+import { rollupCommonjsPlugin, rollupJsonPlugin, rollupNodeResolvePlugin, rollupReplacePlugin } from '../sys/modules/compiler-deps';
 import { RollupOptions, TreeshakingOptions, rollup } from 'rollup';
 import { serverPlugin } from './server-plugin';
 import { userIndexPlugin } from './user-index-plugin';
@@ -26,11 +26,17 @@ export const bundleOutput = async (
 ) => {
   try {
     const rollupOptions = getRollupOptions(config, compilerCtx, buildCtx, bundleOpts);
+    console.log('rollupOptions');
+    console.log(rollupOptions);
     const rollupBuild = await rollup(rollupOptions);
+    console.log('here');
+    console.log(rollupBuild);
 
     compilerCtx.rollupCache.set(bundleOpts.id, rollupBuild.cache);
     return rollupBuild;
   } catch (e: any) {
+    console.log('had error, here');
+    console.log(e);
     if (!buildCtx.hasError) {
       // TODO(STENCIL-353): Implement a type guard that balances using our own copy of Rollup types (which are
       // breakable) and type safety (so that the error variable may be something other than `any`)
