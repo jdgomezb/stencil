@@ -57,7 +57,9 @@ describe('Custom Elements output target', () => {
       const { config, compilerCtx, buildCtx, bundleCustomElementsSpy } = setup();
       const bundleOptions = getBundleOptions(config, buildCtx, compilerCtx, config.outputTargets[0]);
       addCustomElementInputs(buildCtx, bundleOptions);
-      debugger;
+      // debugger;
+      //
+      console.log(bundleOptions.loader);
 
       console.log(bundleOptions);
     });
