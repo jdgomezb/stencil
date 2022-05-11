@@ -1,5 +1,5 @@
-import { createCompiler, path } from '@stencil/core/compiler';
-import { mockConfig, mockStencilSystem, mockBuildCtx, mockCompilerCtx } from '@stencil/core/testing';
+import { path } from '@stencil/core/compiler';
+import { mockConfig, mockStencilSystem, mockBuildCtx, mockCompilerCtx, mockModule } from '@stencil/core/testing';
 import type * as d from '../../../declarations';
 import {outputCustomElements} from '../dist-custom-elements';
 import * as outputCustomElementsMod from '../dist-custom-elements';
@@ -21,6 +21,10 @@ const setup = () => {
 
   const bundleCustomElementsSpy = jest.spyOn(outputCustomElementsMod, 'bundleCustomElements')
 
+  // console.log(compilerCtx.moduleMap);
+
+  compilerCtx.moduleMap.set("test", mockModule())
+
   return { config, compilerCtx, buildCtx, bundleCustomElementsSpy };
 }
 
@@ -36,13 +40,29 @@ describe('Custom Elements output target', () => {
     expect(bundleCustomElementsSpy).not.toHaveBeenCalled()
   });
 
-  it('should return early if config.buildDist is false', async () => {
+  it.each([
+    [[]],
+    [[ { type: 'dist' } ]],
+    [[ { type: 'dist' }, { type: 'dist-custom-elements-bundle' }]]
+  ])('should return early if no appropriate output target (%j)', async (outputTargets) => {
     const { config, compilerCtx, buildCtx, bundleCustomElementsSpy } = setup()
+    config.outputTargets = outputTargets as d.OutputTarget[];
     const retVal = await outputCustomElements(
       config,
       compilerCtx,
       buildCtx
     )
-    // expect(bundleCustomElementsSpy).not.toHaveBeenCalled()
+    expect(bundleCustomElementsSpy).not.toHaveBeenCalled()
   });
+
+  it("should exit without error", async () => {
+    const { config, compilerCtx, buildCtx, bundleCustomElementsSpy } = setup()
+
+    console.log(buildCtx);
+    const retVal = await outputCustomElements(
+      config,
+      compilerCtx,
+      buildCtx
+    )
+  })
 });

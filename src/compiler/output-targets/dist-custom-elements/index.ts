@@ -21,6 +21,15 @@ import { proxyCustomElement } from '../../transformers/component-native/proxy-cu
 import { updateStencilCoreImports } from '../../transformers/update-stencil-core-import';
 import ts from 'typescript';
 
+/**
+ * Main output target function for `dist-custom-elements`. This function just does some
+ * organizational work to call the other functions in this module, which do the work.
+ *
+ * @param config the user-supplied compiler configuration we're using
+ * @param compilerCtx the current compiler context
+ * @param buildCtx the current build context
+ * @returns an empty Promise which won't resolve until the work is done!
+ */
 export const outputCustomElements = async (
   config: d.Config,
   compilerCtx: d.CompilerCtx,
@@ -38,12 +47,12 @@ export const outputCustomElements = async (
   const bundlingEventMessage = 'generate custom elements';
   const timespan = buildCtx.createTimeSpan(`${bundlingEventMessage} started`);
 
-  await Promise.all(outputTargets.map((o) => bundleCustomElements(config, compilerCtx, buildCtx, o)));
+  await Promise.all(outputTargets.map((target) => bundleCustomElements(config, compilerCtx, buildCtx, target)));
 
   timespan.finish(`${bundlingEventMessage} finished`);
 };
 
-const bundleCustomElements = async (
+export const bundleCustomElements = async (
   config: d.Config,
   compilerCtx: d.CompilerCtx,
   buildCtx: d.BuildCtx,
@@ -69,14 +78,8 @@ const bundleCustomElements = async (
 
     addCustomElementInputs(buildCtx, bundleOpts);
 
-    console.log('dist-custom-elements bundleOpts')
-    console.log(bundleOpts);
-    await compilerCtx.fs.writeFile(
-      "dist-custom-elements.json",
-      JSON.stringify(bundleOpts)
-    )
-
     const build = await bundleOutput(config, compilerCtx, buildCtx, bundleOpts);
+
     if (build) {
       const rollupOutput = await build.generate({
         banner: generatePreamble(config),
@@ -132,7 +135,7 @@ const bundleCustomElements = async (
  * @param buildCtx the context for the current build
  * @param bundleOpts the bundle options to store the virtual modules under. acts as an output parameter
  */
-const addCustomElementInputs = (buildCtx: d.BuildCtx, bundleOpts: BundleOptions): void => {
+export const addCustomElementInputs = (buildCtx: d.BuildCtx, bundleOpts: BundleOptions): void => {
   const components = buildCtx.components;
   const indexImps: string[] = [];
 
@@ -170,9 +173,6 @@ const addCustomElementInputs = (buildCtx: d.BuildCtx, bundleOpts: BundleOptions)
   });
 
   bundleOpts.loader["\0core"] += indexImps.join("\n")
-
-  console.log('here');
-  console.log(bundleOpts.loader["\0core"]);
 };
 
 /**
@@ -181,28 +181,23 @@ const addCustomElementInputs = (buildCtx: d.BuildCtx, bundleOpts: BundleOptions)
  * @param buildCtx build context for the current compilation run
  * @returns the stringified contents to be placed in the entrypoint
  */
- // @ts-ignore
-const generateEntryPoint = (outputTarget: d.OutputTargetDistCustomElements, buildCtx: d.BuildCtx): string => {
-  const lines: string[] = [];
+export const generateEntryPoint = (outputTarget: d.OutputTargetDistCustomElements, buildCtx: d.BuildCtx): string => {
+  const imp: string[] = [];
 
-  lines.push("// first test line")
-
-  lines.push(
+  imp.push(
     `export { setAssetPath, setPlatformOptions } from '${STENCIL_INTERNAL_CLIENT_ID}';`,
     `export * from '${USER_INDEX_ENTRY_ID}';`
   );
 
-  // if (outputTarget.includeGlobalScripts !== false) {
-    lines.push(`import { globalScripts } from '${STENCIL_APP_GLOBALS_ID}';`, `globalScripts();`);
-  // }
+  if (outputTarget.includeGlobalScripts !== false) {
+    imp.push(`import { globalScripts } from '${STENCIL_APP_GLOBALS_ID}';`, `globalScripts();`);
+  }
 
   buildCtx.components.forEach(component => {
-    lines.push(`// ${component.tagName} TEST`)
+    imp.push(`// ${component.tagName} TEST`)
   })
 
-  lines.push("// TEST TEST TEST")
-
-  return lines.join('\n') + '\n';
+  return imp.join('\n') + '\n';
 };
 
 /**
