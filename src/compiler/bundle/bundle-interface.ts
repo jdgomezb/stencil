@@ -26,7 +26,7 @@ export interface BundleOptions {
   loader?: { [id: string]: string };
   inlineDynamicImports?: boolean;
   inlineWorkers?: boolean;
-  /** 
+  /**
    * Duplicate of Rollup's `preserveEntrySignatures` option.
    *
    * "Controls if Rollup tries to ensure that entry chunks have the same

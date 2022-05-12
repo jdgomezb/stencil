@@ -3,6 +3,7 @@ import { mockConfig, mockStencilSystem, mockBuildCtx, mockCompilerCtx, mockModul
 import type * as d from '../../../declarations';
 import { addCustomElementInputs, getBundleOptions, outputCustomElements } from '../dist-custom-elements';
 import * as outputCustomElementsMod from '../dist-custom-elements';
+import { OutputTargetDistCustomElements } from '../../../declarations';
 
 const setup = () => {
   const sys = mockStencilSystem();
@@ -52,14 +53,17 @@ describe('Custom Elements output target', () => {
     const retVal = await outputCustomElements(config, compilerCtx, buildCtx);
   });
 
-  describe('generateEntryPoint', () => {
-    
-  });
+  describe('generateEntryPoint', () => {});
 
   describe('addCustomElementInputs', () => {
     it('should add inputs, loader entries for components', () => {
       const { config, compilerCtx, buildCtx, bundleCustomElementsSpy } = setup();
-      const bundleOptions = getBundleOptions(config, buildCtx, compilerCtx, config.outputTargets[0]);
+      const bundleOptions = getBundleOptions(
+        config,
+        buildCtx,
+        compilerCtx,
+        config.outputTargets[0] as OutputTargetDistCustomElements
+      );
       addCustomElementInputs(buildCtx, bundleOptions);
       // debugger;
       //

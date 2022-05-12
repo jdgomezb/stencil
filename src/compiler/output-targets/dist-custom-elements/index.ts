@@ -4,12 +4,10 @@ import { bundleOutput } from '../../bundle/bundle-output';
 import {
   catchError,
   dashToPascalCase,
-  formatComponentRuntimeMeta,
   generatePreamble,
   getSourceMappingUrlForEndOfFile,
   hasError,
   rollupToStencilSourceMap,
-  stringifyRuntimeData,
 } from '@utils';
 import { getCustomElementsBuildConditionals } from '../dist-custom-elements-bundle/custom-elements-build-conditionals';
 import { isOutputTargetDistCustomElements } from '../output-utils';
@@ -54,6 +52,16 @@ export const outputCustomElements = async (
   timespan.finish(`${bundlingEventMessage} finished`);
 };
 
+/**
+ * Get bundle options for our current build and compiler context which we'll use
+ * to generate a Rollup build and so on.
+ *
+ * @param config user-supplied Stencil configuration
+ * @param buildCtx the current build context
+ * @param compilerCtx the current compiler context
+ * @param outputTarget the outputTarget we're currently dealing with
+ * @returns bundle options suitable for generating a rollup configuration
+ */
 export const getBundleOptions = (
   config: d.Config,
   buildCtx: d.BuildCtx,
@@ -68,6 +76,11 @@ export const getBundleOptions = (
     externalRuntime: !!outputTarget.externalRuntime,
     inlineWorkers: true,
     inputs: {
+      // Here we prefix our index chunk with '\0' to tell Rollup that we're going to be using
+      // virtual modules with this module. A leading '\0' prevents other plugins from messing
+      // with the module.
+      //
+      // @see {@link https://rollupjs.org/guide/en/#conventions} for more info.
       index: '\0core',
     },
     loader: {
